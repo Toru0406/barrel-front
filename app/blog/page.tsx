@@ -12,11 +12,15 @@ interface Props {
 
 export default async function BlogPage({ searchParams }: Props) {
   const page = Math.max(1, Number(searchParams.page ?? 1));
-  const { posts, totalPages } = await getPosts({ page, perPage: 12 });
+  const { posts, totalPages } = await getPosts({ page, perPage: 12 }).catch(() => ({
+    posts: [],
+    total: 0,
+    totalPages: 1,
+  }));
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">記事一覧</h1>
+    <div className="max-w-6xl mx-auto px-6 py-16 bg-[#0A0A0A] min-h-screen">
+      <h1 className="font-serif text-2xl font-bold text-white mb-10">記事一覧</h1>
       {posts.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -27,7 +31,7 @@ export default async function BlogPage({ searchParams }: Props) {
           <Pagination currentPage={page} totalPages={totalPages} basePath="/blog" />
         </>
       ) : (
-        <p className="text-gray-500 text-center py-20">記事がありません</p>
+        <p className="text-[#999999] text-center py-20">記事がありません</p>
       )}
     </div>
   );

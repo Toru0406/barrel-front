@@ -23,6 +23,7 @@ function ipFetch(path: string): Promise<RawResponse> {
         path: `${WP_BASE_PATH}${path}`,
         method: "GET",
         agent,
+        timeout: 10000,
         headers: { Host: WP_HOST, Accept: "application/json" },
       },
       (res) => {
@@ -33,6 +34,7 @@ function ipFetch(path: string): Promise<RawResponse> {
         );
       }
     );
+    req.on("timeout", () => { req.destroy(); reject(new Error("WordPress API timeout")); });
     req.on("error", reject);
     req.end();
   });

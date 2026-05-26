@@ -23,27 +23,31 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const cat = await getCategoryBySlug(params.slug);
+  const cat = await getCategoryBySlug(params.slug).catch(() => null);
   if (!cat) return {};
   return { title: `${cat.name} の記事一覧` };
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
-  const category = await getCategoryBySlug(params.slug);
+  const category = await getCategoryBySlug(params.slug).catch(() => null);
   if (!category) notFound();
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
-  const { posts, totalPages } = await getPosts({ page, perPage: 12, categoryId: category.id });
+  const { posts, totalPages } = await getPosts({
+    page,
+    perPage: 12,
+    categoryId: category.id,
+  }).catch(() => ({ posts: [], total: 0, totalPages: 1 }));
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <div className="mb-8">
-        <p className="text-sm text-gray-400 mb-1">カテゴリ</p>
-        <h1 className="text-2xl font-bold text-gray-900">{category.name}</h1>
+    <div className="max-w-6xl mx-auto px-6 py-16 bg-[#0A0A0A] min-h-screen">
+      <div className="mb-10">
+        <p className="text-xs text-[#999999] mb-2 tracking-widest uppercase">Category</p>
+        <h1 className="font-serif text-2xl font-bold text-white">{category.name}</h1>
         {category.description && (
-          <p className="mt-2 text-gray-500 text-sm">{category.description}</p>
+          <p className="mt-2 text-[#999999] text-sm">{category.description}</p>
         )}
-        <p className="mt-1 text-xs text-gray-400">{category.count}件の記事</p>
+        <p className="mt-1 text-xs text-[#999999]">{category.count}件の記事</p>
       </div>
 
       {posts.length > 0 ? (
@@ -60,7 +64,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           />
         </>
       ) : (
-        <p className="text-gray-500 text-center py-20">この カテゴリの記事はありません</p>
+        <p className="text-[#999999] text-center py-20">このカテゴリの記事はありません</p>
       )}
     </div>
   );

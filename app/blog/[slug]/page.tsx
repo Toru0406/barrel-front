@@ -28,7 +28,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  const post = await getPostBySlug(params.slug).catch(() => null);
   if (!post) return {};
   return {
     title: post.title.rendered.replace(/<[^>]+>/g, ""),
