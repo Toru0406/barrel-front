@@ -18,3 +18,42 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .section-base {
+    @apply px-6 md:px-12 lg:px-24 py-20;
+  }
+
+  .section-title {
+    @apply font-serif text-section font-bold mb-12
+           pb-4 border-b-2 border-barrel-green;
+  }
+
+  .card-base {
+    @apply bg-white border border-barrel-gray-200
+           transition-all duration-300
+           hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .btn-primary {
+    @apply bg-barrel-beige text-barrel-green
+           font-sans font-bold
+           px-8 py-4 text-sm tracking-wider
+           transition-all duration-200
+           hover:bg-barrel-green hover:text-barrel-beige;
+  }
+
+  .btn-outline {
+    @apply bg-transparent text-white
+           border border-white/60
+           font-sans px-8 py-4 text-sm tracking-wider
+           transition-all duration-200
+           hover:bg-white/10;
+  }
+
+  .badge {
+    @apply bg-barrel-green text-white
+           font-sans text-xs px-3 py-1
+           tracking-wider uppercase;
+  }
+}

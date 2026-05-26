@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -24,16 +25,20 @@ export default function Header() {
 
   return (
     <header
-      className={`bg-white border-b border-[#E5E5E5] sticky top-0 z-50 transition-shadow duration-200 ${
+      className={`bg-white border-b border-barrel-gray-200 sticky top-0 z-50 transition-shadow duration-200 ${
         scrolled ? "shadow-sm" : ""
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link
-          href="/"
-          className="font-serif text-xl font-bold text-[#0D3320] tracking-widest"
-        >
-          BARREL
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo/barrel-logo.png"
+            alt="BARREL"
+            width={200}
+            height={44}
+            className="h-9 w-auto object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -42,7 +47,7 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-[#1A1A1A] hover:text-[#0D3320] hover:underline underline-offset-4 transition-colors duration-150"
+              className="font-sans text-sm text-barrel-black hover:text-barrel-green hover:underline underline-offset-4 transition-colors duration-150"
             >
               {item.label}
             </Link>
@@ -52,7 +57,7 @@ export default function Header() {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-[#1A1A1A] p-2"
+          className="md:hidden text-barrel-black p-2"
           aria-label="メニューを開く"
         >
           {open ? <X size={22} /> : <Menu size={22} />}
@@ -61,12 +66,12 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden bg-white border-t border-[#E5E5E5]">
+        <div className="md:hidden bg-white border-t border-barrel-gray-200">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block px-6 py-4 text-sm text-[#1A1A1A] hover:text-[#0D3320] hover:bg-[#FAFAF8] border-b border-[#E5E5E5] transition-colors"
+              className="block px-6 py-4 font-sans text-sm text-barrel-black hover:text-barrel-green hover:bg-barrel-gray-100 border-b border-barrel-gray-200 transition-colors"
               onClick={() => setOpen(false)}
             >
               {item.label}

@@ -43,17 +43,13 @@ export default async function BlogPostPage({ params }: Props) {
   const categories = getPostCategories(post);
 
   return (
-    <div className="bg-[#FAFAF8] min-h-screen">
+    <div className="bg-barrel-white min-h-screen">
       <article className="max-w-3xl mx-auto px-6 py-16">
         {/* カテゴリ */}
         {categories.length > 0 && (
           <div className="flex gap-2 mb-6">
             {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/category/${cat.slug}`}
-                className="text-xs text-white bg-[#0D3320] px-3 py-1.5 font-medium hover:opacity-80 transition-opacity"
-              >
+              <Link key={cat.id} href={`/category/${cat.slug}`} className="badge hover:opacity-80 transition-opacity">
                 {cat.name}
               </Link>
             ))}
@@ -62,14 +58,16 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* タイトル */}
         <h1
-          className="font-serif text-3xl md:text-4xl font-bold text-[#1A1A1A] leading-tight"
+          className="font-serif text-3xl md:text-4xl font-bold text-barrel-black leading-tight"
           dangerouslySetInnerHTML={{ __html: post.title.rendered }}
         />
-        <time className="mt-4 block text-sm text-[#999999]">{formatDate(post.date)}</time>
+        <time className="mt-4 block font-sans text-sm text-barrel-gray-400">
+          {formatDate(post.date)}
+        </time>
 
         {/* アイキャッチ */}
         {image && (
-          <div className="mt-8 overflow-hidden rounded-[4px] aspect-video bg-[#E5E5E5]">
+          <div className="mt-8 overflow-hidden aspect-video bg-barrel-gray-200">
             <Image
               src={image.src}
               alt={image.alt}
@@ -83,15 +81,15 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* 本文 */}
         <div
-          className="mt-10 prose prose-stone max-w-none prose-headings:font-serif prose-headings:text-[#1A1A1A] prose-a:text-[#0D3320] prose-img:rounded-[4px] prose-p:leading-relaxed prose-p:text-[#1A1A1A]"
+          className="mt-10 prose prose-stone max-w-none prose-headings:font-serif prose-headings:text-barrel-black prose-a:text-barrel-green prose-p:leading-relaxed prose-p:text-barrel-black"
           dangerouslySetInnerHTML={{ __html: post.content.rendered }}
         />
 
         {/* 戻るリンク */}
-        <div className="mt-16 pt-8 border-t border-[#E5E5E5]">
+        <div className="mt-16 pt-8 border-t border-barrel-gray-200">
           <Link
             href="/blog"
-            className="text-sm text-[#0D3320] hover:underline underline-offset-4 transition-all"
+            className="font-sans text-sm text-barrel-green border-b border-barrel-green hover:text-barrel-beige hover:border-barrel-beige transition-colors"
           >
             ← 記事一覧に戻る
           </Link>

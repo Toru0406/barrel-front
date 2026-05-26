@@ -39,16 +39,23 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }).catch(() => ({ posts: [], total: 0, totalPages: 1 }));
 
   return (
-    <div className="bg-[#FAFAF8] min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="mb-10">
-          <p className="text-xs text-[#999999] mb-2 tracking-widest uppercase">Category</p>
-          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A]">{category.name}</h1>
-          <div className="mt-2 w-12 h-1 bg-[#0D3320]" />
+    <div className="bg-barrel-white min-h-screen">
+      <div className="section-base max-w-7xl mx-auto">
+        <div className="mb-12">
+          <p className="font-sans text-xs text-barrel-gray-400 mb-2 tracking-widest uppercase">
+            Category
+          </p>
+          <h1 className="font-serif text-section font-bold text-barrel-black pb-4 border-b-2 border-barrel-green">
+            {category.name}
+          </h1>
           {category.description && (
-            <p className="mt-4 text-[#666666] text-sm leading-relaxed">{category.description}</p>
+            <p className="mt-4 font-sans text-barrel-gray-600 text-sm leading-relaxed">
+              {category.description}
+            </p>
           )}
-          <p className="mt-2 text-xs text-[#999999]">{category.count}件の記事</p>
+          <p className="mt-2 font-sans text-xs text-barrel-gray-400">
+            {category.count}件の記事
+          </p>
         </div>
 
         {posts.length > 0 ? (
@@ -65,7 +72,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             />
           </>
         ) : (
-          <p className="text-[#666666] text-center py-20">このカテゴリの記事はありません</p>
+          <p className="font-sans text-barrel-gray-600 text-center py-20">
+            このカテゴリの記事はありません
+          </p>
         )}
       </div>
     </div>

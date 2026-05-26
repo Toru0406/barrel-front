@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const CAT_LINKS = [
   { label: "指導・育成", href: "/category/coaching" },
@@ -16,26 +17,34 @@ const SNS_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1A1A1A]">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="flex flex-col md:flex-row justify-between gap-12">
+    <footer className="bg-barrel-black">
+      <div className="px-6 md:px-12 lg:px-24 py-16">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-12">
           <div>
-            <p className="font-serif text-xl font-bold text-[#E8D5B0] tracking-widest mb-3">
-              BARREL
-            </p>
-            <p className="text-sm text-[#999999] leading-relaxed">
+            <Link href="/">
+              <Image
+                src="/logo/barrel-logo.png"
+                alt="BARREL"
+                width={200}
+                height={44}
+                className="h-9 w-auto object-contain [filter:brightness(0)_invert(1)]"
+              />
+            </Link>
+            <p className="mt-3 font-sans text-sm text-barrel-gray-400 leading-relaxed">
               すべての競技人に、科学の知見を。
             </p>
           </div>
 
           <div>
-            <p className="text-xs text-[#666666] tracking-widest uppercase mb-4">Categories</p>
+            <p className="font-sans text-xs text-barrel-gray-600 tracking-widest uppercase mb-4">
+              Categories
+            </p>
             <ul className="space-y-2.5">
               {CAT_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-sm text-[#CCCCCC] hover:text-[#E8D5B0] transition-colors"
+                    className="font-sans text-sm text-barrel-gray-400 hover:text-barrel-beige transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -45,7 +54,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="text-xs text-[#666666] tracking-widest uppercase mb-4">Follow</p>
+            <p className="font-sans text-xs text-barrel-gray-600 tracking-widest uppercase mb-4">
+              Follow
+            </p>
             <ul className="space-y-2.5">
               {SNS_LINKS.map((l) => (
                 <li key={l.href}>
@@ -53,7 +64,7 @@ export default function Footer() {
                     href={l.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-[#CCCCCC] hover:text-[#E8D5B0] transition-colors"
+                    className="font-sans text-sm text-barrel-gray-400 hover:text-barrel-beige transition-colors"
                   >
                     {l.label}
                   </a>
@@ -63,7 +74,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-[#333333] text-center text-xs text-[#666666]">
+        <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-barrel-gray-800 text-center font-sans text-xs text-barrel-gray-600">
           © 2026 BARREL
         </div>
       </div>

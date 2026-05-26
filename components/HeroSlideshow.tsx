@@ -27,10 +27,7 @@ export default function HeroSlideshow() {
   return (
     <section className="relative h-screen overflow-hidden">
       {/* Fallback */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{ background: "linear-gradient(135deg, #0D3320 0%, #1a4a2e 50%, #0a1f14 100%)" }}
-      />
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-barrel-green via-[#1a4a2e] to-[#0a1f14]" />
 
       {/* Slideshow: crossfade + Ken Burns */}
       <AnimatePresence>
@@ -64,53 +61,43 @@ export default function HeroSlideshow() {
         }}
       />
 
-      {/* Content */}
-      <div className="absolute inset-0 z-[3] flex flex-col items-center justify-end pb-16 px-6 text-center">
-        <p
-          className="font-display italic text-[#E8D5B0] mb-4"
-          style={{ fontSize: "14px", letterSpacing: "0.2em" }}
-        >
-          Sport × Science
-        </p>
-        <h1
-          className="font-serif text-white font-bold mb-6"
-          style={{ fontSize: "clamp(36px, 5vw, 64px)" }}
-        >
-          スポーツの『なぜ』を、科学で解く。
-        </h1>
-        <p className="font-sans text-[#CCCCCC] text-lg mb-8">
-          すべての競技者へ。<br />
-          論文が明かす、競技力向上の最前線。
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap mb-10">
-          <Link
-            href="/blog"
-            className="bg-[#E8D5B0] text-[#0D3320] font-bold hover:bg-white transition-colors duration-200"
-            style={{ padding: "16px 32px" }}
-          >
-            最新記事を読む
-          </Link>
-          <Link
-            href="/about"
-            className="text-white hover:bg-white/10 transition-colors duration-200"
-            style={{ padding: "16px 32px", border: "1px solid rgba(255,255,255,0.6)" }}
-          >
-            BARRELとは
-          </Link>
-        </div>
+      {/* Content：左寄せ・下部 */}
+      <div className="absolute inset-0 z-[3] flex flex-col items-start justify-end px-6 md:px-12 lg:px-24 pb-16">
+        <div className="max-w-2xl">
+          <p className="font-display italic text-barrel-beige text-sm tracking-[0.2em] mb-4">
+            Sport × Science
+          </p>
+          <h1 className="font-serif text-hero text-white font-bold mb-6">
+            スポーツの『なぜ』を、科学で解く。
+          </h1>
+          <p className="font-sans text-barrel-gray-400 text-lg mb-8">
+            すべての競技者へ。<br />
+            論文が明かす、競技力向上の最前線。
+          </p>
+          <div className="flex gap-4 flex-wrap mb-10">
+            <Link href="/blog" className="btn-primary">
+              最新記事を読む
+            </Link>
+            <Link href="/about" className="btn-outline">
+              BARRELとは
+            </Link>
+          </div>
 
-        {/* Progress indicators */}
-        <div className="flex items-center gap-2">
-          {IMAGES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              aria-label={`スライド ${i + 1}`}
-              className={`h-[2px] rounded-full transition-all duration-500 ${
-                i === current ? "w-8 bg-white" : "w-4 bg-white/40 hover:bg-white/60"
-              }`}
-            />
-          ))}
+          {/* Progress indicators */}
+          <div className="flex items-center gap-2">
+            {IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                aria-label={`スライド ${i + 1}`}
+                className={`h-[2px] rounded-full transition-all duration-500 ${
+                  i === current
+                    ? "w-8 bg-barrel-beige"
+                    : "w-4 bg-barrel-beige/40 hover:bg-barrel-beige/60"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

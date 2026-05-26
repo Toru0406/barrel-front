@@ -16,7 +16,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Props)
       {currentPage > 1 && (
         <Link
           href={`${basePath}?page=${currentPage - 1}`}
-          className="px-4 py-2 border border-[#E5E5E5] text-sm text-[#1A1A1A] hover:border-[#0D3320] hover:text-[#0D3320] transition-colors"
+          className="px-4 py-2 font-sans text-sm border border-barrel-gray-200 text-barrel-black hover:border-barrel-green hover:text-barrel-green transition-colors"
         >
           前へ
         </Link>
@@ -25,10 +25,10 @@ export default function Pagination({ currentPage, totalPages, basePath }: Props)
         <Link
           key={p}
           href={`${basePath}?page=${p}`}
-          className={`px-4 py-2 text-sm transition-colors ${
+          className={`px-4 py-2 font-sans text-sm transition-colors ${
             p === currentPage
-              ? "bg-[#0D3320] text-white"
-              : "border border-[#E5E5E5] text-[#1A1A1A] hover:border-[#0D3320] hover:text-[#0D3320]"
+              ? "bg-barrel-green text-white"
+              : "border border-barrel-gray-200 text-barrel-black hover:border-barrel-green hover:text-barrel-green"
           }`}
         >
           {p}
@@ -37,7 +37,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Props)
       {currentPage < totalPages && (
         <Link
           href={`${basePath}?page=${currentPage + 1}`}
-          className="px-4 py-2 border border-[#E5E5E5] text-sm text-[#1A1A1A] hover:border-[#0D3320] hover:text-[#0D3320] transition-colors"
+          className="px-4 py-2 font-sans text-sm border border-barrel-gray-200 text-barrel-black hover:border-barrel-green hover:text-barrel-green transition-colors"
         >
           次へ
         </Link>

@@ -19,12 +19,9 @@ export default async function BlogPage({ searchParams }: Props) {
   }));
 
   return (
-    <div className="bg-[#FAFAF8] min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="mb-10">
-          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A]">記事一覧</h1>
-          <div className="mt-2 w-12 h-1 bg-[#0D3320]" />
-        </div>
+    <div className="bg-barrel-white min-h-screen">
+      <div className="section-base max-w-7xl mx-auto">
+        <h1 className="section-title">記事一覧</h1>
         {posts.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -35,7 +32,7 @@ export default async function BlogPage({ searchParams }: Props) {
             <Pagination currentPage={page} totalPages={totalPages} basePath="/blog" />
           </>
         ) : (
-          <p className="text-[#666666] text-center py-20">記事がありません</p>
+          <p className="font-sans text-barrel-gray-600 text-center py-20">記事がありません</p>
         )}
       </div>
     </div>

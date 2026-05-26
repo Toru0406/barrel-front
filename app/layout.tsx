@@ -11,13 +11,13 @@ const notoSansJP = Noto_Sans_JP({
 });
 const shipporiMincho = Shippori_Mincho({
   subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "700"],
   variable: "--font-serif",
 });
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
+  weight: ["400"],
+  style: ["italic"],
   variable: "--font-display",
 });
 
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJP.variable} ${shipporiMincho.variable} ${playfairDisplay.variable} font-sans bg-[#FAFAF8] text-[#1A1A1A]`}
+        className={`${notoSansJP.variable} ${shipporiMincho.variable} ${playfairDisplay.variable} font-sans bg-barrel-white`}
       >
         <Header />
         <main>{children}</main>
