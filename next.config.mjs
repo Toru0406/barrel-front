@@ -4,14 +4,14 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "getabarrel.com" },
       { protocol: "https", hostname: "www.getabarrel.com" },
-      { protocol: "http", hostname: "150.95.255.38" },
+      { protocol: "https", hostname: "178.105.13.166" },
     ],
   },
   async rewrites() {
     return [
       {
         source: "/api/wp/:path*",
-        destination: "http://150.95.255.38/wp-json/wp/v2/:path*",
+        destination: "https://178.105.13.166/wp-json/wp/v2/:path*",
       },
     ];
   },

@@ -1,14 +1,12 @@
-// サーバーサイド：IPへHTTP直接接続 / クライアントサイド：rewriteプロキシ経由
-const WP_BASE =
-  typeof window === "undefined"
-    ? "http://150.95.255.38/wp-json/wp/v2"
-    : "/api/wp";
-const WP_HOST = "www.getabarrel.com";
+import https from "https";
+import type { IncomingMessage } from "http";
 
-const FETCH_OPTS: RequestInit = {
-  cache: "no-store",
-  headers: { Host: WP_HOST, Accept: "application/json" },
-};
+const WP_IP = "178.105.13.166";
+const WP_HOST = "getabarrel.com";
+const WP_BASE = `https://${WP_IP}/wp-json/wp/v2`;
+
+// SSL証明書はドメイン用のためIPアクセスでは検証スキップ
+const agent = new https.Agent({ rejectUnauthorized: false });
 
 export interface WPPost {
   id: number;
@@ -37,10 +35,31 @@ export interface WPCategory {
   description: string;
 }
 
+function httpsGet(url: string): Promise<{ body: string; statusCode: number; resHeaders: Record<string, string> }> {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      url,
+      { agent, headers: { Host: WP_HOST, Accept: "application/json" } },
+      (res: IncomingMessage) => {
+        let body = "";
+        res.on("data", (chunk: Buffer | string) => (body += chunk.toString()));
+        res.on("end", () => {
+          const resHeaders: Record<string, string> = {};
+          for (const [k, v] of Object.entries(res.headers)) {
+            if (v !== undefined) resHeaders[k.toLowerCase()] = Array.isArray(v) ? v[0] : String(v);
+          }
+          resolve({ body, statusCode: res.statusCode ?? 200, resHeaders });
+        });
+      }
+    );
+    req.on("error", reject);
+  });
+}
+
 async function wpFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${WP_BASE}${path}`, FETCH_OPTS);
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status} ${path}`);
-  return res.json() as Promise<T>;
+  const { body, statusCode } = await httpsGet(`${WP_BASE}${path}`);
+  if (statusCode >= 400) throw new Error(`WordPress API error: ${statusCode} ${path}`);
+  return JSON.parse(body) as T;
 }
 
 export async function getPosts(params?: {
@@ -56,14 +75,14 @@ export async function getPosts(params?: {
   });
   if (categoryId) qs.set("categories", String(categoryId));
 
-  const res = await fetch(`${WP_BASE}/posts?${qs}`, FETCH_OPTS);
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status}`);
+  const { body, statusCode, resHeaders } = await httpsGet(`${WP_BASE}/posts?${qs}`);
+  if (statusCode >= 400) throw new Error(`WordPress API error: ${statusCode}`);
 
-  const posts = (await res.json()) as WPPost[];
+  const posts = JSON.parse(body) as WPPost[];
   return {
     posts,
-    total: Number(res.headers.get("x-wp-total") ?? 0),
-    totalPages: Number(res.headers.get("x-wp-totalpages") ?? 1),
+    total: Number(resHeaders["x-wp-total"] ?? 0),
+    totalPages: Number(resHeaders["x-wp-totalpages"] ?? 1),
   };
 }
 
