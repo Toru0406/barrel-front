@@ -1,5 +1,8 @@
-// WordPressサーバーIPへHTTPで直接接続（SSL証明書問題・DNSループを両方回避）
-const WP_BASE = "http://150.95.255.38/wp-json/wp/v2";
+// サーバーサイド：IPへHTTP直接接続 / クライアントサイド：rewriteプロキシ経由
+const WP_BASE =
+  typeof window === "undefined"
+    ? "http://150.95.255.38/wp-json/wp/v2"
+    : "/api/wp";
 const WP_HOST = "www.getabarrel.com";
 
 const FETCH_OPTS: RequestInit = {
