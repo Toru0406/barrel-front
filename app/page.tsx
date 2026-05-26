@@ -20,48 +20,6 @@ const CATEGORIES = [
   { name: "科学", slug: "science", icon: FlaskConical },
 ];
 
-const TARGET_CARDS = [
-  { label: "指導者の方へ", href: "/category/coaching" },
-  { label: "選手の方へ", href: "/category/training" },
-  { label: "保護者の方へ", href: "/category/conditioning" },
-  { label: "他競技の方へ", href: "/category/science" },
-];
-
-function HeroPostCard({ post }: { post: WPPost }) {
-  const image = getFeaturedImage(post);
-  const cats = getPostCategories(post);
-  return (
-    <Link
-      href={`/blog/${post.slug}`}
-      className="group block bg-white/10 rounded-[4px] overflow-hidden hover:bg-white/20 transition-colors duration-200"
-    >
-      {image && (
-        <div className="aspect-video overflow-hidden">
-          <Image
-            src={image.src}
-            alt={image.alt}
-            width={640}
-            height={360}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-      )}
-      <div className="p-5">
-        {cats.length > 0 && (
-          <span className="text-xs text-[#0D3320] bg-[#E8D5B0] px-3 py-1 font-medium">
-            {cats[0].name}
-          </span>
-        )}
-        <h3
-          className="mt-3 font-serif text-lg font-bold text-white line-clamp-2 leading-tight group-hover:text-[#E8D5B0] transition-colors"
-          dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-        />
-        <time className="mt-2 block text-xs text-[#CCCCCC]">{formatDate(post.date)}</time>
-      </div>
-    </Link>
-  );
-}
-
 function LargePostCard({ post }: { post: WPPost }) {
   const image = getFeaturedImage(post);
   const cats = getPostCategories(post);
@@ -138,48 +96,73 @@ function SmallPostCard({ post }: { post: WPPost }) {
 
 export default async function HomePage() {
   const [postsResult, categories] = await Promise.all([
-    getPosts({ perPage: 4 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
+    getPosts({ perPage: 3 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
     getCategories().catch(() => []),
   ]);
 
   const categoryMap = Object.fromEntries(categories.map((c) => [c.slug, c]));
-  const heroPost = postsResult.posts[0] ?? null;
-  const mainPost = postsResult.posts[1] ?? null;
-  const sidePost1 = postsResult.posts[2] ?? null;
-  const sidePost2 = postsResult.posts[3] ?? null;
+  const mainPost = postsResult.posts[0] ?? null;
+  const sidePost1 = postsResult.posts[1] ?? null;
+  const sidePost2 = postsResult.posts[2] ?? null;
 
   return (
     <div>
       {/* Hero */}
-      <section className="bg-[#0D3320] min-h-[90vh] flex items-center">
-        <div className="max-w-7xl mx-auto px-6 py-16 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left */}
-            <div>
-              <p className="font-display italic text-[#E8D5B0] text-sm mb-6 tracking-wider">
-                Baseball × Sports Science
-              </p>
-              <h1 className="font-serif text-5xl md:text-6xl font-bold text-white leading-tight">
-                スポーツの『なぜ』を、<br />
-                科学で解く。
-              </h1>
-              <p className="mt-6 text-lg text-[#CCCCCC] leading-relaxed">
-                選手・指導者・保護者へ。<br />
-                論文が明かす、競技力向上の最前線。
-              </p>
-              <Link
-                href="/blog"
-                className="mt-10 inline-flex items-center gap-2 bg-[#E8D5B0] text-[#0D3320] px-8 py-4 font-bold tracking-wide hover:bg-white transition-colors duration-200"
-              >
-                最新記事を読む
-              </Link>
-            </div>
-            {/* Right: Hero featured card */}
-            {heroPost && (
-              <div>
-                <HeroPostCard post={heroPost} />
-              </div>
-            )}
+      <section className="relative h-screen overflow-hidden flex items-end">
+        {/* Fallback gradient */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{ background: "linear-gradient(135deg, #0D3320 0%, #1a4a2e 50%, #0a1f14 100%)" }}
+        />
+        {/* Background image */}
+        <Image
+          src="/images/hero.jpg"
+          alt=""
+          fill
+          className="object-cover object-center z-[1]"
+          priority
+        />
+        {/* Overlay */}
+        <div
+          className="absolute inset-0 z-[2]"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(13,51,32,0.7) 60%, rgba(13,51,32,0.95) 100%)",
+          }}
+        />
+        {/* Content */}
+        <div className="relative z-[3] w-full max-w-4xl mx-auto px-6 pb-20 text-center">
+          <p
+            className="font-display italic text-[#E8D5B0] mb-4"
+            style={{ fontSize: "14px", letterSpacing: "0.2em" }}
+          >
+            Sport × Science
+          </p>
+          <h1
+            className="font-serif text-white font-bold mb-6"
+            style={{ fontSize: "clamp(36px, 5vw, 64px)" }}
+          >
+            スポーツの『なぜ』を、科学で解く。
+          </h1>
+          <p className="font-sans text-[#CCCCCC] text-lg mb-8">
+            すべての競技者へ。<br />
+            論文が明かす、競技力向上の最前線。
+          </p>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Link
+              href="/blog"
+              className="bg-[#E8D5B0] text-[#0D3320] font-bold hover:bg-white transition-colors duration-200"
+              style={{ padding: "16px 32px" }}
+            >
+              最新記事を読む
+            </Link>
+            <Link
+              href="/about"
+              className="text-white hover:bg-white/10 transition-colors duration-200"
+              style={{ padding: "16px 32px", border: "1px solid rgba(255,255,255,0.6)" }}
+            >
+              BARRELとは
+            </Link>
           </div>
         </div>
       </section>
@@ -261,34 +244,6 @@ export default async function HomePage() {
                 </FadeIn>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* Target Navigation */}
-      <section className="bg-[#0D3320] py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <FadeIn>
-            <h2 className="font-serif text-2xl font-bold text-white mb-10">
-              あなたに合った記事を探す
-            </h2>
-          </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {TARGET_CARDS.map((card, i) => (
-              <FadeIn key={card.href} delay={i * 0.08}>
-                <Link
-                  href={card.href}
-                  className="group flex items-center justify-between p-6 rounded-[4px] bg-white/10 border border-white/20 hover:bg-[#E8D5B0]/20 hover:border-[#E8D5B0] transition-all duration-200"
-                >
-                  <span className="text-sm text-white font-medium group-hover:text-[#E8D5B0] transition-colors">
-                    {card.label}
-                  </span>
-                  <span className="text-white/60 group-hover:text-[#E8D5B0] transition-colors">
-                    →
-                  </span>
-                </Link>
-              </FadeIn>
-            ))}
           </div>
         </div>
       </section>
