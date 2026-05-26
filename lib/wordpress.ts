@@ -1,44 +1,11 @@
-import https from "https";
-import { IncomingMessage } from "http";
-
-// Vercelビルド時のDNSループを回避するため、WordPressサーバーIPへ直接接続
-const WP_IP = "150.95.255.38";
+// WordPressサーバーIPへHTTPで直接接続（SSL証明書問題・DNSループを両方回避）
+const WP_BASE = "http://150.95.255.38/wp-json/wp/v2";
 const WP_HOST = "www.getabarrel.com";
-const WP_BASE_PATH = "/wp-json/wp/v2";
 
-const agent = new https.Agent({ rejectUnauthorized: false });
-
-interface RawResponse {
-  status: number;
-  headers: IncomingMessage["headers"];
-  body: string;
-}
-
-function ipFetch(path: string): Promise<RawResponse> {
-  return new Promise((resolve, reject) => {
-    const req = https.request(
-      {
-        hostname: WP_IP,
-        port: 443,
-        path: `${WP_BASE_PATH}${path}`,
-        method: "GET",
-        agent,
-        timeout: 10000,
-        headers: { Host: WP_HOST, Accept: "application/json" },
-      },
-      (res) => {
-        let body = "";
-        res.on("data", (chunk: Buffer) => (body += chunk.toString()));
-        res.on("end", () =>
-          resolve({ status: res.statusCode ?? 0, headers: res.headers, body })
-        );
-      }
-    );
-    req.on("timeout", () => { req.destroy(); reject(new Error("WordPress API timeout")); });
-    req.on("error", reject);
-    req.end();
-  });
-}
+const FETCH_OPTS: RequestInit = {
+  cache: "no-store",
+  headers: { Host: WP_HOST, Accept: "application/json" },
+};
 
 export interface WPPost {
   id: number;
@@ -68,10 +35,9 @@ export interface WPCategory {
 }
 
 async function wpFetch<T>(path: string): Promise<T> {
-  const res = await ipFetch(path);
-  if (res.status < 200 || res.status >= 300)
-    throw new Error(`WordPress API error: ${res.status} ${path}`);
-  return JSON.parse(res.body) as T;
+  const res = await fetch(`${WP_BASE}${path}`, FETCH_OPTS);
+  if (!res.ok) throw new Error(`WordPress API error: ${res.status} ${path}`);
+  return res.json() as Promise<T>;
 }
 
 export async function getPosts(params?: {
@@ -87,15 +53,14 @@ export async function getPosts(params?: {
   });
   if (categoryId) qs.set("categories", String(categoryId));
 
-  const res = await ipFetch(`/posts?${qs}`);
-  if (res.status < 200 || res.status >= 300)
-    throw new Error(`WordPress API error: ${res.status}`);
+  const res = await fetch(`${WP_BASE}/posts?${qs}`, FETCH_OPTS);
+  if (!res.ok) throw new Error(`WordPress API error: ${res.status}`);
 
-  const posts = JSON.parse(res.body) as WPPost[];
+  const posts = (await res.json()) as WPPost[];
   return {
     posts,
-    total: Number(res.headers["x-wp-total"] ?? 0),
-    totalPages: Number(res.headers["x-wp-totalpages"] ?? 1),
+    total: Number(res.headers.get("x-wp-total") ?? 0),
+    totalPages: Number(res.headers.get("x-wp-totalpages") ?? 1),
   };
 }
 
