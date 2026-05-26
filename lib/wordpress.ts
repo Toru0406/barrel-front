@@ -1,5 +1,42 @@
-const WP_API =
-  process.env.WORDPRESS_API_URL ?? "https://www.getabarrel.com/wp-json/wp/v2";
+import https from "https";
+import { IncomingMessage } from "http";
+
+// Vercelビルド時のDNSループを回避するため、WordPressサーバーIPへ直接接続
+const WP_IP = "150.95.255.38";
+const WP_HOST = "www.getabarrel.com";
+const WP_BASE_PATH = "/wp-json/wp/v2";
+
+const agent = new https.Agent({ rejectUnauthorized: false });
+
+interface RawResponse {
+  status: number;
+  headers: IncomingMessage["headers"];
+  body: string;
+}
+
+function ipFetch(path: string): Promise<RawResponse> {
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: WP_IP,
+        port: 443,
+        path: `${WP_BASE_PATH}${path}`,
+        method: "GET",
+        agent,
+        headers: { Host: WP_HOST, Accept: "application/json" },
+      },
+      (res) => {
+        let body = "";
+        res.on("data", (chunk: Buffer) => (body += chunk.toString()));
+        res.on("end", () =>
+          resolve({ status: res.statusCode ?? 0, headers: res.headers, body })
+        );
+      }
+    );
+    req.on("error", reject);
+    req.end();
+  });
+}
 
 export interface WPPost {
   id: number;
@@ -29,11 +66,10 @@ export interface WPCategory {
 }
 
 async function wpFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${WP_API}${path}`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status} ${path}`);
-  return res.json();
+  const res = await ipFetch(path);
+  if (res.status < 200 || res.status >= 300)
+    throw new Error(`WordPress API error: ${res.status} ${path}`);
+  return JSON.parse(res.body) as T;
 }
 
 export async function getPosts(params?: {
@@ -49,16 +85,15 @@ export async function getPosts(params?: {
   });
   if (categoryId) qs.set("categories", String(categoryId));
 
-  const res = await fetch(`${WP_API}/posts?${qs}`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status}`);
+  const res = await ipFetch(`/posts?${qs}`);
+  if (res.status < 200 || res.status >= 300)
+    throw new Error(`WordPress API error: ${res.status}`);
 
-  const posts: WPPost[] = await res.json();
+  const posts = JSON.parse(res.body) as WPPost[];
   return {
     posts,
-    total: Number(res.headers.get("X-WP-Total") ?? 0),
-    totalPages: Number(res.headers.get("X-WP-TotalPages") ?? 1),
+    total: Number(res.headers["x-wp-total"] ?? 0),
+    totalPages: Number(res.headers["x-wp-totalpages"] ?? 1),
   };
 }
 
