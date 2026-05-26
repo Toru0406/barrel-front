@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -14,13 +14,24 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="bg-[#0A0A0A] border-b border-[#222222] sticky top-0 z-50">
+    <header
+      className={`bg-white border-b border-[#E5E5E5] sticky top-0 z-50 transition-shadow duration-200 ${
+        scrolled ? "shadow-sm" : ""
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="font-serif text-xl font-bold text-[#E8D5B0] tracking-widest"
+          className="font-serif text-xl font-bold text-[#0D3320] tracking-widest"
         >
           BARREL
         </Link>
@@ -31,7 +42,7 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-white hover:text-[#E8D5B0] transition-colors duration-200 tracking-wide"
+              className="text-sm text-[#1A1A1A] hover:text-[#0D3320] hover:underline underline-offset-4 transition-colors duration-150"
             >
               {item.label}
             </Link>
@@ -41,7 +52,7 @@ export default function Header() {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-white p-2"
+          className="md:hidden text-[#1A1A1A] p-2"
           aria-label="メニューを開く"
         >
           {open ? <X size={22} /> : <Menu size={22} />}
@@ -50,12 +61,12 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden bg-[#111111] border-t border-[#222222]">
+        <div className="md:hidden bg-white border-t border-[#E5E5E5]">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block px-6 py-4 text-sm text-white hover:text-[#E8D5B0] hover:bg-[#0D3320] transition-colors border-b border-[#222222]"
+              className="block px-6 py-4 text-sm text-[#1A1A1A] hover:text-[#0D3320] hover:bg-[#FAFAF8] border-b border-[#E5E5E5] transition-colors"
               onClick={() => setOpen(false)}
             >
               {item.label}

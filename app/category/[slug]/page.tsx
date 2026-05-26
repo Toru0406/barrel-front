@@ -5,13 +5,12 @@ import PostCard from "@/components/PostCard";
 import Pagination from "@/components/Pagination";
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 interface Props {
   params: { slug: string };
   searchParams: { page?: string };
 }
-
-export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
@@ -40,32 +39,35 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }).catch(() => ({ posts: [], total: 0, totalPages: 1 }));
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-16 bg-[#0A0A0A] min-h-screen">
-      <div className="mb-10">
-        <p className="text-xs text-[#999999] mb-2 tracking-widest uppercase">Category</p>
-        <h1 className="font-serif text-2xl font-bold text-white">{category.name}</h1>
-        {category.description && (
-          <p className="mt-2 text-[#999999] text-sm">{category.description}</p>
-        )}
-        <p className="mt-1 text-xs text-[#999999]">{category.count}件の記事</p>
-      </div>
+    <div className="bg-[#FAFAF8] min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="mb-10">
+          <p className="text-xs text-[#999999] mb-2 tracking-widest uppercase">Category</p>
+          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A]">{category.name}</h1>
+          <div className="mt-2 w-12 h-1 bg-[#0D3320]" />
+          {category.description && (
+            <p className="mt-4 text-[#666666] text-sm leading-relaxed">{category.description}</p>
+          )}
+          <p className="mt-2 text-xs text-[#999999]">{category.count}件の記事</p>
+        </div>
 
-      {posts.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            basePath={`/category/${params.slug}`}
-          />
-        </>
-      ) : (
-        <p className="text-[#999999] text-center py-20">このカテゴリの記事はありません</p>
-      )}
+        {posts.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              basePath={`/category/${params.slug}`}
+            />
+          </>
+        ) : (
+          <p className="text-[#666666] text-center py-20">このカテゴリの記事はありません</p>
+        )}
+      </div>
     </div>
   );
 }

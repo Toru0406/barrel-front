@@ -1,16 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Users,
-  HeartPulse,
-  ClipboardList,
-  Dumbbell,
-  Trophy,
-  FlaskConical,
+  Users, HeartPulse, ClipboardList, Dumbbell, Trophy, FlaskConical,
 } from "lucide-react";
-import { getPosts, getCategories } from "@/lib/wordpress";
-import PostCard from "@/components/PostCard";
+import {
+  getPosts, getCategories, getFeaturedImage, getPostCategories, formatDate,
+  WPPost,
+} from "@/lib/wordpress";
 import FadeIn from "@/components/FadeIn";
-import ScrollIndicator from "@/components/ScrollIndicator";
 
 export const revalidate = 60;
 
@@ -30,132 +27,233 @@ const TARGET_CARDS = [
   { label: "他競技の方へ", href: "/category/science" },
 ];
 
-const BADGES = [
-  { emoji: "👨‍🏫", label: "指導者" },
-  { emoji: "⚾", label: "選手" },
-  { emoji: "👨‍👩‍👦", label: "保護者" },
-  { emoji: "🏫", label: "学校関係者" },
-  { emoji: "🏃", label: "他競技コーチ" },
-];
+function HeroPostCard({ post }: { post: WPPost }) {
+  const image = getFeaturedImage(post);
+  const cats = getPostCategories(post);
+  return (
+    <Link
+      href={`/blog/${post.slug}`}
+      className="group block bg-white/10 rounded-[4px] overflow-hidden hover:bg-white/20 transition-colors duration-200"
+    >
+      {image && (
+        <div className="aspect-video overflow-hidden">
+          <Image
+            src={image.src}
+            alt={image.alt}
+            width={640}
+            height={360}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      )}
+      <div className="p-5">
+        {cats.length > 0 && (
+          <span className="text-xs text-[#0D3320] bg-[#E8D5B0] px-3 py-1 font-medium">
+            {cats[0].name}
+          </span>
+        )}
+        <h3
+          className="mt-3 font-serif text-lg font-bold text-white line-clamp-2 leading-tight group-hover:text-[#E8D5B0] transition-colors"
+          dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+        />
+        <time className="mt-2 block text-xs text-[#CCCCCC]">{formatDate(post.date)}</time>
+      </div>
+    </Link>
+  );
+}
+
+function LargePostCard({ post }: { post: WPPost }) {
+  const image = getFeaturedImage(post);
+  const cats = getPostCategories(post);
+  return (
+    <article className="group bg-white rounded-[4px] overflow-hidden border border-[#E5E5E5] h-full hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+      <Link href={`/blog/${post.slug}`}>
+        <div className="aspect-video bg-[#E5E5E5] overflow-hidden">
+          {image ? (
+            <Image
+              src={image.src}
+              alt={image.alt}
+              width={800}
+              height={450}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#0D3320]/10 to-[#E8D5B0]/20" />
+          )}
+        </div>
+        <div className="p-6">
+          {cats.length > 0 && (
+            <span className="text-xs text-white bg-[#0D3320] px-3 py-1.5 font-medium">
+              {cats[0].name}
+            </span>
+          )}
+          <h2
+            className="mt-4 font-serif text-2xl font-bold text-[#1A1A1A] line-clamp-2 leading-tight group-hover:text-[#0D3320] transition-colors"
+            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+          />
+          <p
+            className="mt-3 text-sm text-[#666666] line-clamp-3 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
+          />
+          <time className="mt-4 block text-xs text-[#999999]">{formatDate(post.date)}</time>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+function SmallPostCard({ post }: { post: WPPost }) {
+  const image = getFeaturedImage(post);
+  const cats = getPostCategories(post);
+  return (
+    <article className="group bg-white rounded-[4px] overflow-hidden border border-[#E5E5E5] hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+      <Link href={`/blog/${post.slug}`} className="flex gap-4 p-4">
+        {image && (
+          <div className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-[4px]">
+            <Image
+              src={image.src}
+              alt={image.alt}
+              width={200}
+              height={200}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          {cats.length > 0 && (
+            <span className="text-xs text-white bg-[#0D3320] px-2 py-1 font-medium">
+              {cats[0].name}
+            </span>
+          )}
+          <h3
+            className="mt-2 font-serif text-sm font-bold text-[#1A1A1A] line-clamp-3 leading-snug group-hover:text-[#0D3320] transition-colors"
+            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+          />
+          <time className="mt-2 block text-xs text-[#999999]">{formatDate(post.date)}</time>
+        </div>
+      </Link>
+    </article>
+  );
+}
 
 export default async function HomePage() {
   const [postsResult, categories] = await Promise.all([
-    getPosts({ perPage: 3 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
+    getPosts({ perPage: 4 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
     getCategories().catch(() => []),
   ]);
-  const latestPosts = postsResult.posts;
 
   const categoryMap = Object.fromEntries(categories.map((c) => [c.slug, c]));
+  const heroPost = postsResult.posts[0] ?? null;
+  const mainPost = postsResult.posts[1] ?? null;
+  const sidePost1 = postsResult.posts[2] ?? null;
+  const sidePost2 = postsResult.posts[3] ?? null;
 
   return (
-    <div className="bg-[#0A0A0A]">
+    <div>
       {/* Hero */}
-      <section
-        className="relative min-h-screen flex items-center overflow-hidden"
-        style={{ background: "linear-gradient(150deg, #0D3320 0%, #0A0A0A 55%)" }}
-      >
-        <div className="relative max-w-5xl mx-auto px-6 py-32 w-full">
-          <FadeIn>
-            <p className="text-xs tracking-[0.45em] text-[#E8D5B0] mb-8 uppercase">
-              Baseball × Sports Science
-            </p>
-          </FadeIn>
-          <FadeIn delay={0.1}>
-            <h1 className="font-serif text-5xl md:text-7xl font-bold leading-tight text-white tracking-tight">
-              スポーツの『なぜ』を、<br />
-              科学で解く。
-            </h1>
-          </FadeIn>
-          <FadeIn delay={0.2}>
-            <p className="mt-7 text-base md:text-lg text-[#999999] font-light leading-relaxed max-w-xl">
-              選手・指導者・保護者へ。<br />
-              論文が明かす、競技力向上の最前線。
-            </p>
-          </FadeIn>
-          <FadeIn delay={0.3}>
-            <Link
-              href="/blog"
-              className="mt-12 inline-flex items-center gap-3 bg-[#E8D5B0] text-[#0A0A0A] px-8 py-4 text-sm font-bold tracking-widest hover:bg-white transition-colors duration-200"
-            >
-              最新記事を読む
-            </Link>
-          </FadeIn>
-        </div>
-        <ScrollIndicator />
-      </section>
-
-      {/* Target Badges */}
-      <section className="bg-[#111111] border-y border-[#222222]">
-        <div className="max-w-6xl mx-auto px-6 py-14 text-center">
-          <p className="text-xs text-[#999999] mb-6 tracking-[0.35em] uppercase">For</p>
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {BADGES.map((b) => (
-              <span
-                key={b.label}
-                className="bg-[#0A0A0A] border border-[#222222] text-[#999999] text-xs px-4 py-2 tracking-wide"
-              >
-                {b.emoji} {b.label}
-              </span>
-            ))}
-          </div>
-          <p className="text-sm text-[#999999] tracking-wide">
-            すべての競技人のための、スポーツ科学メディア
-          </p>
-        </div>
-      </section>
-
-      {/* Latest Posts */}
-      <section className="bg-[#0A0A0A] py-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <FadeIn>
-            <div className="flex items-baseline justify-between mb-12">
-              <h2 className="font-serif text-2xl font-bold text-white">最新記事</h2>
+      <section className="bg-[#0D3320] min-h-[90vh] flex items-center">
+        <div className="max-w-7xl mx-auto px-6 py-16 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left */}
+            <div>
+              <p className="font-display italic text-[#E8D5B0] text-sm mb-6 tracking-wider">
+                Baseball × Sports Science
+              </p>
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-white leading-tight">
+                スポーツの『なぜ』を、<br />
+                科学で解く。
+              </h1>
+              <p className="mt-6 text-lg text-[#CCCCCC] leading-relaxed">
+                選手・指導者・保護者へ。<br />
+                論文が明かす、競技力向上の最前線。
+              </p>
               <Link
                 href="/blog"
-                className="text-xs text-[#E8D5B0] hover:text-white transition-colors tracking-wide"
+                className="mt-10 inline-flex items-center gap-2 bg-[#E8D5B0] text-[#0D3320] px-8 py-4 font-bold tracking-wide hover:bg-white transition-colors duration-200"
               >
-                すべて見る →
+                最新記事を読む
+              </Link>
+            </div>
+            {/* Right: Hero featured card */}
+            {heroPost && (
+              <div>
+                <HeroPostCard post={heroPost} />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Posts */}
+      <section className="bg-[#FAFAF8] py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <FadeIn>
+            <div className="flex items-baseline justify-between mb-10">
+              <h2 className="font-serif text-2xl font-bold text-[#1A1A1A]">最新記事</h2>
+              <Link
+                href="/blog"
+                className="text-sm text-[#0D3320] underline underline-offset-4 hover:opacity-70 transition-opacity"
+              >
+                すべての記事を見る →
               </Link>
             </div>
           </FadeIn>
-          {latestPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {latestPosts.map((post, i) => (
-                <FadeIn key={post.id} delay={i * 0.1}>
-                  <PostCard post={post} />
+
+          {(mainPost || sidePost1 || sidePost2) ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {mainPost && (
+                <FadeIn className="lg:col-span-2 h-full">
+                  <LargePostCard post={mainPost} />
                 </FadeIn>
-              ))}
+              )}
+              <div className="flex flex-col gap-6">
+                {sidePost1 && (
+                  <FadeIn delay={0.1}>
+                    <SmallPostCard post={sidePost1} />
+                  </FadeIn>
+                )}
+                {sidePost2 && (
+                  <FadeIn delay={0.2}>
+                    <SmallPostCard post={sidePost2} />
+                  </FadeIn>
+                )}
+              </div>
             </div>
           ) : (
-            <p className="text-[#999999] text-center py-20">記事がありません</p>
+            <p className="text-[#666666] text-center py-20">記事がありません</p>
           )}
         </div>
       </section>
 
       {/* Category Grid */}
-      <section className="bg-[#111111] py-24 border-y border-[#222222]">
-        <div className="max-w-6xl mx-auto px-6">
+      <section className="bg-white py-20 border-t border-[#E5E5E5]">
+        <div className="max-w-7xl mx-auto px-6">
           <FadeIn>
-            <h2 className="font-serif text-2xl font-bold text-white mb-12">
+            <h2 className="font-serif text-2xl font-bold text-[#1A1A1A] mb-10">
               カテゴリから探す
             </h2>
           </FadeIn>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[#222222]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {CATEGORIES.map((cat, i) => {
               const wpCat = categoryMap[cat.slug];
               const Icon = cat.icon;
               return (
-                <FadeIn key={cat.slug} delay={i * 0.07}>
+                <FadeIn key={cat.slug} delay={i * 0.06}>
                   <Link
                     href={`/category/${cat.slug}`}
-                    className="group bg-[#0A0A0A] p-8 flex flex-col gap-5 border-l-2 border-transparent hover:border-[#0D3320] transition-all duration-200 h-full"
+                    className="group flex items-start gap-4 p-6 bg-white rounded-[4px] border border-[#E5E5E5] hover:bg-[#0D3320] transition-colors duration-200"
+                    style={{ borderLeft: "4px solid #0D3320" }}
                   >
-                    <Icon size={26} className="text-[#E8D5B0]" strokeWidth={1.5} />
+                    <Icon
+                      size={24}
+                      className="text-[#0D3320] group-hover:text-[#E8D5B0] transition-colors flex-shrink-0 mt-0.5"
+                      strokeWidth={1.5}
+                    />
                     <div>
-                      <span className="block font-serif text-base font-bold text-white group-hover:text-[#E8D5B0] transition-colors">
+                      <span className="block font-serif text-base font-bold text-[#1A1A1A] group-hover:text-white transition-colors">
                         {cat.name}
                       </span>
-                      <span className="mt-1 block text-xs text-[#999999]">
+                      <span className="mt-1 block text-xs text-[#666666] group-hover:text-[#CCCCCC] transition-colors">
                         {wpCat ? `${wpCat.count} 記事` : "—"}
                       </span>
                     </div>
@@ -168,24 +266,24 @@ export default async function HomePage() {
       </section>
 
       {/* Target Navigation */}
-      <section className="bg-[#0A0A0A] py-24">
-        <div className="max-w-6xl mx-auto px-6">
+      <section className="bg-[#0D3320] py-20">
+        <div className="max-w-7xl mx-auto px-6">
           <FadeIn>
-            <h2 className="font-serif text-2xl font-bold text-white mb-12">
+            <h2 className="font-serif text-2xl font-bold text-white mb-10">
               あなたに合った記事を探す
             </h2>
           </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-px bg-[#222222]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {TARGET_CARDS.map((card, i) => (
               <FadeIn key={card.href} delay={i * 0.08}>
                 <Link
                   href={card.href}
-                  className="group bg-[#0A0A0A] p-8 flex items-center justify-between border border-[#222222] hover:border-[#E8D5B0] transition-colors duration-200 h-full"
+                  className="group flex items-center justify-between p-6 rounded-[4px] bg-white/10 border border-white/20 hover:bg-[#E8D5B0]/20 hover:border-[#E8D5B0] transition-all duration-200"
                 >
                   <span className="text-sm text-white font-medium group-hover:text-[#E8D5B0] transition-colors">
                     {card.label}
                   </span>
-                  <span className="text-[#999999] group-hover:text-[#E8D5B0] transition-colors">
+                  <span className="text-white/60 group-hover:text-[#E8D5B0] transition-colors">
                     →
                   </span>
                 </Link>
@@ -196,19 +294,18 @@ export default async function HomePage() {
       </section>
 
       {/* Newsletter CTA */}
-      <section className="bg-[#0D3320] py-24">
+      <section className="bg-[#FAFAF8] py-20" style={{ borderTop: "4px solid #0D3320" }}>
         <FadeIn>
           <div className="max-w-2xl mx-auto px-6 text-center">
-            <h2 className="font-serif text-2xl md:text-3xl font-bold text-white leading-relaxed">
-              指導者も、選手も、保護者も。<br />
-              スポーツ科学の最新知見を、あなたの手元に。
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#1A1A1A] leading-snug">
+              指導者も、選手も、保護者も。
             </h2>
-            <p className="mt-5 text-[#E8D5B0] text-sm tracking-wide">
-              論文ベースの記事を毎週配信。無料で読む。
+            <p className="mt-4 text-[#666666] leading-relaxed">
+              論文ベースのスポーツ科学記事を毎週配信。
             </p>
             <Link
               href="/contact"
-              className="mt-10 inline-flex items-center gap-2 bg-[#E8D5B0] text-[#0D3320] px-8 py-4 text-sm font-bold tracking-widest hover:bg-white transition-colors duration-200"
+              className="mt-8 inline-flex items-center gap-2 bg-[#0D3320] text-white px-10 py-4 font-bold tracking-widest hover:opacity-90 transition-opacity duration-200"
             >
               購読登録する
             </Link>

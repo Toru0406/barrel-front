@@ -11,14 +11,17 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui"],
         serif: ["var(--font-serif)", "ui-serif", "Georgia"],
+        display: ["var(--font-display)", "serif"],
       },
       colors: {
         barrel: {
+          bg: "#FAFAF8",
+          surface: "#FFFFFF",
           primary: "#0D3320",
           secondary: "#E8D5B0",
-          bg: "#0A0A0A",
-          surface: "#111111",
-          border: "#222222",
+          text: "#1A1A1A",
+          muted: "#666666",
+          border: "#E5E5E5",
         },
       },
     },

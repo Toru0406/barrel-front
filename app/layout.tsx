@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
+import { Noto_Sans_JP, Shippori_Mincho, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,10 +9,16 @@ const notoSansJP = Noto_Sans_JP({
   weight: ["400", "500", "700"],
   variable: "--font-sans",
 });
-const notoSerifJP = Noto_Serif_JP({
+const shipporiMincho = Shippori_Mincho({
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-serif",
+});
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700"],
-  variable: "--font-serif",
+  style: ["normal", "italic"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJP.variable} ${notoSerifJP.variable} font-sans bg-[#0A0A0A] text-white`}
+        className={`${notoSansJP.variable} ${shipporiMincho.variable} ${playfairDisplay.variable} font-sans bg-[#FAFAF8] text-[#1A1A1A]`}
       >
         <Header />
         <main>{children}</main>

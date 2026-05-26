@@ -11,9 +11,9 @@ export default function PostCard({ post }: Props) {
   const categories = getPostCategories(post);
 
   return (
-    <article className="group bg-[#111111] overflow-hidden border border-[#222222] hover:border-[#E8D5B0] transition-colors duration-300">
+    <article className="group bg-white rounded-[4px] overflow-hidden border border-[#E5E5E5] hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
       <Link href={`/blog/${post.slug}`}>
-        <div className="aspect-video bg-[#222222] overflow-hidden">
+        <div className="aspect-video bg-[#E5E5E5] overflow-hidden">
           {image ? (
             <Image
               src={image.src}
@@ -23,7 +23,7 @@ export default function PostCard({ post }: Props) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#0D3320] to-[#111111]" />
+            <div className="w-full h-full bg-gradient-to-br from-[#0D3320]/10 to-[#E8D5B0]/20" />
           )}
         </div>
         <div className="p-5">
@@ -32,7 +32,7 @@ export default function PostCard({ post }: Props) {
               {categories.map((cat) => (
                 <span
                   key={cat.id}
-                  className="text-xs text-[#E8D5B0] bg-[#0D3320] px-2.5 py-1 font-medium tracking-wide"
+                  className="text-xs text-white bg-[#0D3320] px-3 py-1.5 font-medium"
                 >
                   {cat.name}
                 </span>
@@ -40,8 +40,12 @@ export default function PostCard({ post }: Props) {
             </div>
           )}
           <h2
-            className="font-serif text-base font-bold text-white line-clamp-2 group-hover:text-[#E8D5B0] transition-colors leading-snug"
+            className="font-serif text-base font-bold text-[#1A1A1A] line-clamp-2 group-hover:text-[#0D3320] transition-colors leading-tight"
             dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+          />
+          <p
+            className="mt-2 text-sm text-[#666666] line-clamp-2 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
           />
           <time className="mt-3 block text-xs text-[#999999]">{formatDate(post.date)}</time>
         </div>
