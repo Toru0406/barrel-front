@@ -8,9 +8,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui"],
+        serif: ["var(--font-serif)", "ui-serif", "Georgia"],
+      },
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        barrel: {
+          primary: "#0D3320",
+          secondary: "#E8D5B0",
+          bg: "#0A0A0A",
+          surface: "#111111",
+          border: "#222222",
+        },
       },
     },
   },

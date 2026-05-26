@@ -11,28 +11,28 @@ export default function PostCard({ post }: Props) {
   const categories = getPostCategories(post);
 
   return (
-    <article className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+    <article className="group bg-[#111111] overflow-hidden border border-[#222222] hover:border-[#E8D5B0] transition-colors duration-300">
       <Link href={`/blog/${post.slug}`}>
-        <div className="aspect-video bg-gray-100 overflow-hidden">
+        <div className="aspect-video bg-[#222222] overflow-hidden">
           {image ? (
             <Image
               src={image.src}
               alt={image.alt}
               width={640}
               height={360}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
+            <div className="w-full h-full bg-gradient-to-br from-[#0D3320] to-[#111111]" />
           )}
         </div>
-        <div className="p-4">
+        <div className="p-5">
           {categories.length > 0 && (
-            <div className="flex gap-2 mb-2 flex-wrap">
+            <div className="flex gap-2 mb-3 flex-wrap">
               {categories.map((cat) => (
                 <span
                   key={cat.id}
-                  className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full"
+                  className="text-xs text-[#E8D5B0] bg-[#0D3320] px-2.5 py-1 font-medium tracking-wide"
                 >
                   {cat.name}
                 </span>
@@ -40,14 +40,10 @@ export default function PostCard({ post }: Props) {
             </div>
           )}
           <h2
-            className="text-base font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors"
+            className="font-serif text-base font-bold text-white line-clamp-2 group-hover:text-[#E8D5B0] transition-colors leading-snug"
             dangerouslySetInnerHTML={{ __html: post.title.rendered }}
           />
-          <p
-            className="mt-2 text-sm text-gray-500 line-clamp-2"
-            dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
-          />
-          <time className="mt-3 block text-xs text-gray-400">{formatDate(post.date)}</time>
+          <time className="mt-3 block text-xs text-[#999999]">{formatDate(post.date)}</time>
         </div>
       </Link>
     </article>
