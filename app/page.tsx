@@ -8,6 +8,7 @@ import {
   WPPost,
 } from "@/lib/wordpress";
 import FadeIn from "@/components/FadeIn";
+import HeroSlideshow from "@/components/HeroSlideshow";
 
 export const revalidate = 60;
 
@@ -108,64 +109,7 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative h-screen overflow-hidden flex items-end">
-        {/* Fallback gradient */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{ background: "linear-gradient(135deg, #0D3320 0%, #1a4a2e 50%, #0a1f14 100%)" }}
-        />
-        {/* Background image */}
-        <Image
-          src="/images/hero.jpg"
-          alt=""
-          fill
-          className="object-cover object-center z-[1]"
-          priority
-        />
-        {/* Overlay */}
-        <div
-          className="absolute inset-0 z-[2]"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(13,51,32,0.7) 60%, rgba(13,51,32,0.95) 100%)",
-          }}
-        />
-        {/* Content */}
-        <div className="relative z-[3] w-full max-w-4xl mx-auto px-6 pb-20 text-center">
-          <p
-            className="font-display italic text-[#E8D5B0] mb-4"
-            style={{ fontSize: "14px", letterSpacing: "0.2em" }}
-          >
-            Sport × Science
-          </p>
-          <h1
-            className="font-serif text-white font-bold mb-6"
-            style={{ fontSize: "clamp(36px, 5vw, 64px)" }}
-          >
-            スポーツの『なぜ』を、科学で解く。
-          </h1>
-          <p className="font-sans text-[#CCCCCC] text-lg mb-8">
-            すべての競技者へ。<br />
-            論文が明かす、競技力向上の最前線。
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link
-              href="/blog"
-              className="bg-[#E8D5B0] text-[#0D3320] font-bold hover:bg-white transition-colors duration-200"
-              style={{ padding: "16px 32px" }}
-            >
-              最新記事を読む
-            </Link>
-            <Link
-              href="/about"
-              className="text-white hover:bg-white/10 transition-colors duration-200"
-              style={{ padding: "16px 32px", border: "1px solid rgba(255,255,255,0.6)" }}
-            >
-              BARRELとは
-            </Link>
-          </div>
-        </div>
-      </section>
+      <HeroSlideshow />
 
       {/* Featured Posts */}
       <section className="bg-[#FAFAF8] py-20">
