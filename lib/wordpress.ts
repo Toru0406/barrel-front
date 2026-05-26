@@ -1,5 +1,5 @@
 const WP_API =
-  process.env.WORDPRESS_API_URL ?? "https://getabarrel.com/wp-json/wp/v2";
+  process.env.WORDPRESS_API_URL ?? "https://www.getabarrel.com/wp-json/wp/v2";
 
 export interface WPPost {
   id: number;

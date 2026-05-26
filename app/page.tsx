@@ -39,10 +39,11 @@ const BADGES = [
 ];
 
 export default async function HomePage() {
-  const [{ posts: latestPosts }, categories] = await Promise.all([
-    getPosts({ perPage: 3 }),
-    getCategories(),
+  const [postsResult, categories] = await Promise.all([
+    getPosts({ perPage: 3 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
+    getCategories().catch(() => []),
   ]);
+  const latestPosts = postsResult.posts;
 
   const categoryMap = Object.fromEntries(categories.map((c) => [c.slug, c]));
 

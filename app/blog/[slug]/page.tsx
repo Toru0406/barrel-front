@@ -16,9 +16,15 @@ interface Props {
   params: { slug: string };
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const { posts } = await getPosts({ perPage: 50 });
-  return posts.map((p) => ({ slug: p.slug }));
+  try {
+    const { posts } = await getPosts({ perPage: 50 });
+    return posts.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
