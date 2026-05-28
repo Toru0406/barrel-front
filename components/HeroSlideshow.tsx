@@ -71,8 +71,7 @@ export default function HeroSlideshow() {
             スポーツの『なぜ』を、科学で解く。
           </h1>
           <p className="font-sans text-barrel-gray-400 text-lg mb-8">
-            すべての競技者へ。<br />
-            論文が明かす、競技力向上の最前線。
+            すべての競技者へ。論文が明かす、競技力向上の最前線。
           </p>
           <div className="flex gap-4 flex-wrap mb-10">
             <Link href="/blog" className="btn-primary">
