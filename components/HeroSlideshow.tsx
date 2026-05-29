@@ -63,23 +63,25 @@ export default function HeroSlideshow() {
 
       {/* Content：左寄せ・下部 */}
       <div className="absolute inset-0 z-[3] flex flex-col items-start justify-end px-6 md:px-12 lg:px-24 pb-16">
-        <div className="max-w-2xl">
+        <div>
           <p className="font-display italic text-barrel-beige text-sm tracking-[0.2em] mb-4">
-            Sport × Science
+            Sports × Science
           </p>
-          <h1 className="font-serif text-hero text-white font-bold mb-6">
+          <h1 className="font-serif text-hero text-white font-bold mb-6 md:whitespace-nowrap">
             スポーツの『なぜ』を、科学で解く。
           </h1>
-          <p className="font-sans text-barrel-gray-400 text-lg mb-8">
-            すべての競技者へ。論文が明かす、競技力向上の最前線。
-          </p>
-          <div className="flex gap-4 flex-wrap mb-10">
-            <Link href="/blog" className="btn-primary">
-              最新記事を読む
-            </Link>
-            <Link href="/about" className="btn-outline">
-              BARRELとは
-            </Link>
+          <div className="max-w-2xl">
+            <p className="font-sans text-barrel-gray-400 text-lg mb-8">
+              すべての競技者へ。論文が明かす、競技力向上の最前線。
+            </p>
+            <div className="flex gap-4 flex-wrap mb-10">
+              <Link href="/blog" className="btn-primary">
+                最新記事を読む
+              </Link>
+              <Link href="/about" className="btn-outline">
+                BARRELとは
+              </Link>
+            </div>
           </div>
 
           {/* Progress indicators */}
