@@ -26,7 +26,7 @@ function LargePostCard({ post }: { post: WPPost }) {
   const cats = getPostCategories(post);
   return (
     <article className="group card-base overflow-hidden h-full">
-      <Link href={`/blog/${post.slug}`}>
+      <Link href={`/articles/${post.slug}`}>
         <div className="aspect-video bg-barrel-gray-200 overflow-hidden">
           {image ? (
             <Image
@@ -66,7 +66,7 @@ function SmallPostCard({ post }: { post: WPPost }) {
   const cats = getPostCategories(post);
   return (
     <article className="group card-base overflow-hidden">
-      <Link href={`/blog/${post.slug}`} className="flex gap-4 p-4">
+      <Link href={`/articles/${post.slug}`} className="flex gap-4 p-4">
         {image && (
           <div className="w-24 h-24 flex-shrink-0 overflow-hidden">
             <Image
@@ -193,7 +193,7 @@ export default async function HomePage() {
       <section className="bg-barrel-green">
         <FadeIn>
           <div className="section-base max-w-2xl mx-auto text-center">
-            <h2 className="font-serif text-section text-white font-bold">
+            <h2 className="font-serif text-section text-white font-bold whitespace-nowrap">
               指導者も、選手も、保護者も。
             </h2>
             <p className="mt-4 font-sans text-barrel-beige/80 leading-relaxed">

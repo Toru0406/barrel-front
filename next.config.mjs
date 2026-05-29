@@ -4,6 +4,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "getabarrel.com" },
       { protocol: "https", hostname: "www.getabarrel.com" },
+      { protocol: "https", hostname: "cms.getabarrel.com" },
       { protocol: "https", hostname: "178.105.13.166" },
     ],
   },

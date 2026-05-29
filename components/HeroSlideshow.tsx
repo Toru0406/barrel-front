@@ -68,11 +68,11 @@ export default function HeroSlideshow() {
             Sports × Science
           </p>
           <h1 className="font-serif text-hero text-white font-bold mb-6 md:whitespace-nowrap">
-            スポーツの『なぜ』を、科学で解く。
+            あなたのスポーツを、科学で進化させる。
           </h1>
           <div className="max-w-2xl">
             <p className="font-sans text-barrel-gray-400 text-lg mb-8">
-              すべての競技者へ。論文が明かす、競技力向上の最前線。
+              指導者・選手・保護者へ。論文が証明した競技力向上の知識が、ここにある。
             </p>
             <div className="flex gap-4 flex-wrap mb-10">
               <Link href="/blog" className="btn-primary">
