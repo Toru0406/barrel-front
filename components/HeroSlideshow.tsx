@@ -62,8 +62,8 @@ export default function HeroSlideshow() {
       />
 
       {/* Content：左寄せ・下部 */}
-      <div className="absolute inset-0 z-[3] flex flex-col items-start justify-end px-6 md:px-12 lg:px-24 pb-16">
-        <div>
+      <div className="absolute inset-0 z-[3] flex flex-col justify-end pb-16">
+        <div className="w-full max-w-7xl mx-auto px-6">
           <p className="font-display italic text-barrel-beige text-sm tracking-[0.2em] mb-4">
             Sports × Science
           </p>
