@@ -5,7 +5,9 @@ const COLUMNS = [
   {
     label: "コンディショニング",
     href: "/category/conditioning",
-    children: [],
+    children: [
+      { label: "メンタル", href: "/category/mental" },
+    ],
   },
   {
     label: "チーム運営",
@@ -31,17 +33,23 @@ const COLUMNS = [
     href: "/category/sports",
     children: [
       { label: "アメリカンフットボール", href: "/category/アメフト" },
-      { label: "ラグビー",               href: "/category/rugby" },
-      { label: "バレーボール",           href: "/category/volleyball" },
-      { label: "バスケットボール",       href: "/category/basketball" },
       { label: "サッカー",               href: "/category/soccer" },
+      { label: "バスケットボール",       href: "/category/basketball" },
+      { label: "バレーボール",           href: "/category/volleyball" },
+      { label: "ラグビー",               href: "/category/rugby" },
       { label: "野球",                   href: "/category/baseball" },
     ],
   },
   {
     label: "道具",
     href: "/category/gear",
-    children: [],
+    children: [
+      { label: "ギア",     href: "/category/gear-gear" },
+      { label: "サービス", href: "/category/service" },
+      { label: "サプリ",   href: "/category/supplement" },
+      { label: "チケット", href: "/category/ticket" },
+      { label: "書籍",     href: "/category/books" },
+    ],
   },
 ];
 
