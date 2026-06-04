@@ -77,7 +77,7 @@ export default async function ArticlePage({ params }: Props) {
         )}
 
         <div
-          className="mt-10 prose prose-stone max-w-none prose-headings:font-serif prose-headings:text-barrel-black prose-a:text-barrel-green prose-p:leading-relaxed prose-p:text-barrel-black"
+          className="mt-10 prose prose-stone max-w-none prose-headings:font-serif prose-a:text-barrel-green"
           dangerouslySetInnerHTML={{ __html: post.content.rendered }}
         />
 
