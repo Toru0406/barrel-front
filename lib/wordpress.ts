@@ -1,4 +1,4 @@
-const WP_BASE = process.env.WORDPRESS_API_URL ?? "https://cms.getabarrel.com/wp-json/wp/v2";
+const WP_BASE = process.env.WORDPRESS_API_URL || "https://cms.getabarrel.com/wp-json/wp/v2";
 
 export interface WPPost {
   id: number;
