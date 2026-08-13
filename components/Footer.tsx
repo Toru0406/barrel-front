@@ -1,59 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getNav } from "@/lib/nav";
 
-const COLUMNS = [
-  {
-    label: "コンディショニング",
-    href: "/category/conditioning",
-    children: [
-      { label: "メンタル", href: "/category/mental" },
-    ],
-  },
-  {
-    label: "チーム運営",
-    href: "/category/management",
-    children: [
-      { label: "チームビルディング", href: "/category/チームビルディング" },
-      { label: "リーダーシップ",     href: "/category/リーダーシップ" },
-      { label: "運営費・資金",       href: "/category/運営費・資金" },
-    ],
-  },
-  {
-    label: "トレーニング",
-    href: "/category/training",
-    children: [],
-  },
-  {
-    label: "指導・育成",
-    href: "/category/coaching",
-    children: [],
-  },
-  {
-    label: "競技別",
-    href: "/category/sports",
-    children: [
-      { label: "アメリカンフットボール", href: "/category/アメフト" },
-      { label: "サッカー",               href: "/category/soccer" },
-      { label: "バスケットボール",       href: "/category/basketball" },
-      { label: "バレーボール",           href: "/category/volleyball" },
-      { label: "ラグビー",               href: "/category/rugby" },
-      { label: "野球",                   href: "/category/baseball" },
-    ],
-  },
-  {
-    label: "道具",
-    href: "/category/gear",
-    children: [
-      { label: "ギア",     href: "/category/gear-gear" },
-      { label: "サービス", href: "/category/service" },
-      { label: "サプリ",   href: "/category/supplement" },
-      { label: "チケット", href: "/category/ticket" },
-      { label: "書籍",     href: "/category/books" },
-    ],
-  },
-];
+export default async function Footer() {
+  const columns = await getNav();
 
-export default function Footer() {
   return (
     <footer className="bg-barrel-black">
       <div className="max-w-7xl mx-auto px-6 py-16">
@@ -70,9 +21,9 @@ export default function Footer() {
           </Link>
         </div>
 
-        {/* Category columns */}
+        {/* Category columns（WPカテゴリから生成） */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
-          {COLUMNS.map((col) => (
+          {columns.map((col) => (
             <div key={col.href}>
               <Link
                 href={col.href}

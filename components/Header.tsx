@@ -1,62 +1,11 @@
-"use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { getNav } from "@/lib/nav";
+import MobileMenu from "./MobileMenu";
 
-type NavItem = {
-  label: string;
-  href: string;
-  children?: { label: string; href: string }[];
-};
-
-const NAV_ITEMS: NavItem[] = [
-  {
-    label: "コンディショニング",
-    href: "/category/conditioning",
-    children: [
-      { label: "メンタル", href: "/category/mental" },
-    ],
-  },
-  {
-    label: "チーム運営",
-    href: "/category/management",
-    children: [
-      { label: "チームビルディング", href: "/category/チームビルディング" },
-      { label: "リーダーシップ",     href: "/category/リーダーシップ" },
-      { label: "運営費・資金",       href: "/category/運営費・資金" },
-    ],
-  },
-  { label: "トレーニング", href: "/category/training" },
-  { label: "指導・育成",   href: "/category/coaching" },
-  {
-    label: "競技別",
-    href: "/category/sports",
-    children: [
-      { label: "アメリカンフットボール", href: "/category/アメフト" },
-      { label: "サッカー",               href: "/category/soccer" },
-      { label: "バスケットボール",       href: "/category/basketball" },
-      { label: "バレーボール",           href: "/category/volleyball" },
-      { label: "ラグビー",               href: "/category/rugby" },
-      { label: "野球",                   href: "/category/baseball" },
-    ],
-  },
-  {
-    label: "道具",
-    href: "/category/gear",
-    children: [
-      { label: "ギア",     href: "/category/gear-gear" },
-      { label: "サービス", href: "/category/service" },
-      { label: "サプリ",   href: "/category/supplement" },
-      { label: "チケット", href: "/category/ticket" },
-      { label: "書籍",     href: "/category/books" },
-    ],
-  },
-];
-
-export default function Header() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+export default async function Header() {
+  const nav = await getNav();
 
   return (
     <header className="bg-white border-b border-barrel-gray-200 sticky top-0 z-50 shadow-sm">
@@ -73,10 +22,10 @@ export default function Header() {
           />
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav（ドロップダウンはCSSのgroup-hoverのみ＝JS不要） */}
         <nav className="hidden md:flex items-center gap-1">
-          {NAV_ITEMS.map((item) =>
-            item.children ? (
+          {nav.map((item) =>
+            item.children.length > 0 ? (
               <div key={item.href} className="relative group">
                 <Link
                   href={item.href}
@@ -116,64 +65,9 @@ export default function Header() {
           )}
         </nav>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden text-barrel-black p-2"
-          aria-label="メニューを開く"
-        >
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        {/* Mobile hamburger + menu（clientコンポーネント） */}
+        <MobileMenu items={nav} />
       </div>
-
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-barrel-gray-200">
-          {NAV_ITEMS.map((item) => (
-            <div key={item.href}>
-              {item.children ? (
-                <>
-                  <button
-                    onClick={() =>
-                      setMobileExpanded(
-                        mobileExpanded === item.href ? null : item.href
-                      )
-                    }
-                    className="w-full flex items-center justify-between px-6 py-4 font-sans text-sm text-barrel-black hover:text-barrel-green hover:bg-barrel-gray-100 border-b border-barrel-gray-200 transition-colors"
-                  >
-                    {item.label}
-                    <ChevronDown
-                      size={14}
-                      className={`transition-transform duration-200 ${
-                        mobileExpanded === item.href ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  {mobileExpanded === item.href &&
-                    item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="block pl-10 pr-6 py-3 font-sans text-sm text-barrel-gray-600 hover:text-barrel-green hover:bg-barrel-gray-100 border-b border-barrel-gray-200 transition-colors"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
-                </>
-              ) : (
-                <Link
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-6 py-4 font-sans text-sm text-barrel-black hover:text-barrel-green hover:bg-barrel-gray-100 border-b border-barrel-gray-200 transition-colors"
-                >
-                  {item.label}
-                </Link>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
     </header>
   );
 }

@@ -24,6 +24,7 @@ export interface WPCategory {
   name: string;
   slug: string;
   count: number;
+  parent: number;
   description: string;
 }
 
@@ -62,8 +63,10 @@ export async function getPostBySlug(slug: string): Promise<WPPost | null> {
   return posts[0] ?? null;
 }
 
-export async function getCategories(): Promise<WPCategory[]> {
-  return wpFetch<WPCategory[]>("/categories?per_page=100&hide_empty=true");
+// hideEmpty=true（既定）は記事0件のカテゴリを除外。ナビ生成では構造維持のため false で呼ぶ。
+export async function getCategories(opts?: { hideEmpty?: boolean }): Promise<WPCategory[]> {
+  const hideEmpty = opts?.hideEmpty ?? true;
+  return wpFetch<WPCategory[]>(`/categories?per_page=100&hide_empty=${hideEmpty}`);
 }
 
 export async function getCategoryBySlug(slug: string): Promise<WPCategory | null> {
