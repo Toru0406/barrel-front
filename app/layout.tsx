@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Noto_Sans_JP, Shippori_Mincho, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+// GA4 測定ID（G-XXXX）。NEXT_PUBLIC_GA_ID を設定したときだけ計測タグを読み込む。
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
@@ -35,6 +39,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main>{children}</main>
         <Footer />
+
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );
