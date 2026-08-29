@@ -9,6 +9,7 @@ import {
   readingTimeMin,
   WPPost,
 } from "@/lib/wordpress";
+import HeroCarousel, { type HeroSlide } from "@/components/HeroCarousel";
 import "./home.css";
 
 export const revalidate = 60;
@@ -66,13 +67,29 @@ function ArticleCard({ post }: { post: WPPost }) {
 
 export default async function HomePage() {
   const [latest, categories] = await Promise.all([
-    getPosts({ perPage: 7 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
+    getPosts({ perPage: 12 }).catch(() => ({ posts: [], total: 0, totalPages: 0 })),
     getCategories().catch(() => []),
   ]);
 
   const catMap = Object.fromEntries(categories.map((c) => [c.slug, c]));
-  const hero = latest.posts[0] ?? null;
-  const grid = latest.posts.slice(1, 7);
+
+  // ヒーローは最新5件をスライドショー表示（5秒自動遷移）。閲覧数はWP APIに無いため最新順。
+  const heroSlides: HeroSlide[] = latest.posts.slice(0, 5).map((post) => {
+    const cat = getPostCategories(post)[0];
+    const img = getFeaturedImage(post);
+    return {
+      slug: post.slug,
+      title: post.title.rendered,
+      dateLabel: formatDateDot(post.date),
+      readingMin: readingTimeMin(post),
+      category: cat
+        ? { name: cat.name, href: `/category/${decodeURIComponent(cat.slug)}` }
+        : null,
+      image: img ? { src: img.src, alt: img.alt } : null,
+    };
+  });
+  // 最新記事グリッドはヒーローと重複しない次の6件
+  const grid = latest.posts.slice(5, 11);
 
   const sections = await Promise.all(
     CATEGORY_SECTIONS.map(async (sec) => {
@@ -88,50 +105,10 @@ export default async function HomePage() {
     })
   );
 
-  const heroImage = hero ? getFeaturedImage(hero) : null;
-  const heroCat = hero ? getPostCategories(hero)[0] : null;
-
   return (
     <div className="barrel-home">
-      {/* ヒーロー（注目記事） */}
-      {hero && (
-        <section className="hero">
-          {heroImage && (
-            <Image
-              src={heroImage.src}
-              alt={heroImage.alt}
-              fill
-              priority
-              sizes="100vw"
-              className="hero__image"
-            />
-          )}
-          <div className="hero__overlay" />
-          <div className="hero__content">
-            <div className="container">
-              {heroCat && (
-                <Link
-                  href={`/category/${decodeURIComponent(heroCat.slug)}`}
-                  className="hero__category"
-                >
-                  {heroCat.name}
-                </Link>
-              )}
-              <h1 className="hero__title">
-                <Link
-                  href={`/articles/${hero.slug}`}
-                  dangerouslySetInnerHTML={{ __html: hero.title.rendered }}
-                />
-              </h1>
-              <div className="hero__meta">
-                <time>{formatDateDot(hero.date)}</time>
-                <span className="hero__meta-separator">—</span>
-                <span>{readingTimeMin(hero)}分で読める</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ヒーロー（注目記事スライドショー・5秒自動遷移） */}
+      <HeroCarousel slides={heroSlides} />
 
       {/* 最新記事 */}
       {grid.length > 0 && (

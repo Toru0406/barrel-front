@@ -83,6 +83,13 @@
   overflow: hidden;
   background-color: var(--color-primary-dark);
 }
+/* スライドショー：各スライドをheroに重ねてクロスフェード */
+.barrel-home .hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
 .barrel-home .hero__image {
   position: absolute;
   inset: 0;
@@ -150,6 +157,34 @@
 }
 .barrel-home .hero__meta-separator {
   opacity: 0.4;
+}
+/* スライド切り替えドット */
+.barrel-home .hero__dots {
+  position: absolute;
+  bottom: var(--space-5);
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.barrel-home .hero__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.barrel-home .hero__dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+.barrel-home .hero__dot.is-active {
+  background: var(--color-accent);
+  transform: scale(1.3);
 }
 
 /* セクション共通 */
