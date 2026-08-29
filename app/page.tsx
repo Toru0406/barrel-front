@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   getPosts,
+  getPostBySlug,
   getCategories,
   getFeaturedImage,
   getPostCategories,
@@ -9,8 +10,24 @@ import {
   readingTimeMin,
   WPPost,
 } from "@/lib/wordpress";
+import { getPopularSlugs } from "@/lib/ga4";
 import HeroCarousel, { type HeroSlide } from "@/components/HeroCarousel";
 import "./home.css";
+
+function toHeroSlide(post: WPPost): HeroSlide {
+  const cat = getPostCategories(post)[0];
+  const img = getFeaturedImage(post);
+  return {
+    slug: post.slug,
+    title: post.title.rendered,
+    dateLabel: formatDateDot(post.date),
+    readingMin: readingTimeMin(post),
+    category: cat
+      ? { name: cat.name, href: `/category/${decodeURIComponent(cat.slug)}` }
+      : null,
+    image: img ? { src: img.src, alt: img.alt } : null,
+  };
+}
 
 export const revalidate = 60;
 
@@ -73,23 +90,23 @@ export default async function HomePage() {
 
   const catMap = Object.fromEntries(categories.map((c) => [c.slug, c]));
 
-  // ヒーローは最新5件をスライドショー表示（5秒自動遷移）。閲覧数はWP APIに無いため最新順。
-  const heroSlides: HeroSlide[] = latest.posts.slice(0, 5).map((post) => {
-    const cat = getPostCategories(post)[0];
-    const img = getFeaturedImage(post);
-    return {
-      slug: post.slug,
-      title: post.title.rendered,
-      dateLabel: formatDateDot(post.date),
-      readingMin: readingTimeMin(post),
-      category: cat
-        ? { name: cat.name, href: `/category/${decodeURIComponent(cat.slug)}` }
-        : null,
-      image: img ? { src: img.src, alt: img.alt } : null,
-    };
-  });
-  // 最新記事グリッドはヒーローと重複しない次の6件
-  const grid = latest.posts.slice(5, 11);
+  // ヒーローはGA4の閲覧数上位（人気記事）をスライドショー表示（5秒自動遷移）。
+  // GA4未取得や人気記事が少ない場合は最新記事にフォールバックする。
+  const popularSlugs = await getPopularSlugs(8).catch(() => [] as string[]);
+  let heroPosts: WPPost[] = [];
+  if (popularSlugs.length > 0) {
+    const resolved = await Promise.all(
+      popularSlugs.map((slug) => getPostBySlug(slug).catch(() => null))
+    );
+    heroPosts = resolved.filter((p): p is WPPost => p !== null).slice(0, 5);
+  }
+  if (heroPosts.length < 2) heroPosts = latest.posts.slice(0, 5);
+
+  const heroSlides: HeroSlide[] = heroPosts.map(toHeroSlide);
+
+  // 最新記事グリッドはヒーローと重複しない最新6件
+  const heroSlugSet = new Set(heroPosts.map((p) => p.slug));
+  const grid = latest.posts.filter((p) => !heroSlugSet.has(p.slug)).slice(0, 6);
 
   const sections = await Promise.all(
     CATEGORY_SECTIONS.map(async (sec) => {
