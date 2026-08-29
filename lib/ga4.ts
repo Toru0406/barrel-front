@@ -1,5 +1,4 @@
 import { JWT } from "google-auth-library";
-import { unstable_cache } from "next/cache";
 
 // GA4 Data API から人気記事（/articles/<slug>）のPV順スラッグを取得する。
 // 失敗時は空配列を返し、呼び出し側で最新記事にフォールバックする。
@@ -100,15 +99,12 @@ export async function debugPopular() {
   }
 }
 
-// 1時間キャッシュ。cron（/api/cron/popular）から revalidateTag("popular-hero") で更新。
-export const getPopularSlugs = unstable_cache(
-  async (limit = 8): Promise<string[]> => {
-    try {
-      return await fetchPopularSlugsUncached(limit);
-    } catch {
-      return [];
-    }
-  },
-  ["popular-slugs"],
-  { revalidate: 3600, tags: ["popular-hero"] }
-);
+// ページ側のISR（revalidate=60）でキャッシュされるため、ここでは直接取得する。
+// 失敗時は空配列 → 呼び出し側で最新記事にフォールバック。
+export async function getPopularSlugs(limit = 8): Promise<string[]> {
+  try {
+    return await fetchPopularSlugsUncached(limit);
+  } catch {
+    return [];
+  }
+}

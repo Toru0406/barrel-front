@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { debugPopular } from "@/lib/ga4";
 
 // Vercel Cron から日次で叩き、GA4人気記事キャッシュ（popular-hero）を再検証する。
@@ -16,6 +16,6 @@ export async function GET(request: Request) {
   if (url.searchParams.get("debug") === "1") {
     return NextResponse.json(await debugPopular());
   }
-  revalidateTag("popular-hero");
-  return NextResponse.json({ ok: true, revalidated: "popular-hero" });
+  revalidatePath("/");
+  return NextResponse.json({ ok: true, revalidated: "/" });
 }
