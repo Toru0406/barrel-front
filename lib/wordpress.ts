@@ -91,3 +91,17 @@ export function formatDate(dateStr: string): string {
     day: "numeric",
   });
 }
+
+// CMS(barrel-theme)と同じ「YYYY.MM.DD」表記
+export function formatDateDot(dateStr: string): string {
+  const d = new Date(dateStr);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`;
+}
+
+// 本文文字数からおおよその読了時間（分）を算出。CMSの「X分で読める」表記に合わせる。
+export function readingTimeMin(post: WPPost): number {
+  const text = post.content?.rendered?.replace(/<[^>]+>/g, "") ?? "";
+  const chars = text.replace(/\s/g, "").length;
+  return Math.max(1, Math.round(chars / 500));
+}

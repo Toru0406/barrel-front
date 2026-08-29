@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Noto_Sans_JP, Shippori_Mincho, Playfair_Display } from "next/font/google";
+import {
+  Noto_Sans_JP,
+  Shippori_Mincho,
+  Playfair_Display,
+  Noto_Serif_JP,
+  Oswald,
+} from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -24,6 +30,17 @@ const playfairDisplay = Playfair_Display({
   style: ["italic"],
   variable: "--font-display",
 });
+// CMS(barrel-theme)のホーム用：本文セリフ＝Noto Serif JP、アクセント＝Oswald
+const notoSerifJP = Noto_Serif_JP({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-serif-jp",
+});
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-oswald",
+});
 
 export const metadata: Metadata = {
   title: { default: "BARREL", template: "%s | BARREL" },
@@ -34,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJP.variable} ${shipporiMincho.variable} ${playfairDisplay.variable} font-sans bg-barrel-white`}
+        className={`${notoSansJP.variable} ${shipporiMincho.variable} ${playfairDisplay.variable} ${notoSerifJP.variable} ${oswald.variable} font-sans bg-barrel-white`}
       >
         <Header />
         <main>{children}</main>
