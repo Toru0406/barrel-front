@@ -1,14 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FOOTER_CATEGORIES, FOOTER_SITE, SOCIAL_LINKS } from "@/lib/nav";
+import { FOOTER_CATEGORIES, SOCIAL_LINKS } from "@/lib/nav";
 
 // CMS（barrel-theme .site-footer）と完全一致：ダークグリーン背景・3カラムグリッド
 export default function Footer() {
   return (
     <footer role="contentinfo" className="bg-[#112814] pt-16 text-barrel-beige">
       <div className="mx-auto max-w-[1240px] px-6">
-        {/* footer-inner: 200px / 1fr / 1fr */}
-        <div className="grid grid-cols-1 gap-8 border-b border-barrel-beige/15 pb-12 sm:grid-cols-2 lg:grid-cols-[200px_1fr_1fr] lg:gap-12">
+        {/* footer-inner: ブランド / カテゴリ */}
+        <div className="grid grid-cols-1 gap-8 border-b border-barrel-beige/15 pb-12 sm:grid-cols-2 lg:grid-cols-[200px_1fr] lg:gap-12">
           {/* ブランドエリア */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="mb-4">
@@ -70,24 +70,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* サイトナビ */}
-          <div>
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-barrel-beige/50">
-              サイト
-            </p>
-            <ul className="flex flex-col gap-2">
-              {FOOTER_SITE.map((c) => (
-                <li key={c.href}>
-                  <Link
-                    href={c.href}
-                    className="text-sm text-barrel-beige/70 transition-colors hover:text-barrel-beige"
-                  >
-                    {c.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         {/* footer-bottom */}

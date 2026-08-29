@@ -5,22 +5,20 @@ export interface NavItem {
   href: string;
 }
 
-// デスクトップ・プライマリナビ（CMS: 指導・育成 / コンディショニング / チーム運営 / about）
+// デスクトップ・プライマリナビ（about は www 未実装のため一旦除外）
 export const PRIMARY_NAV: NavItem[] = [
   { label: "指導・育成", href: "/category/coaching" },
   { label: "コンディショニング", href: "/category/conditioning" },
   { label: "チーム運営", href: "/category/management" },
-  { label: "about", href: "/about" },
 ];
 
-// モバイルメニュー（CMS: 上記＋トレーニング・競技別）
+// モバイルメニュー（CMS: 上記＋トレーニング・競技別。about は一旦除外）
 export const MOBILE_NAV: NavItem[] = [
   { label: "指導・育成", href: "/category/coaching" },
   { label: "コンディショニング", href: "/category/conditioning" },
   { label: "チーム運営", href: "/category/management" },
   { label: "トレーニング", href: "/category/training" },
   { label: "競技別", href: "/category/sports" },
-  { label: "about", href: "/about" },
 ];
 
 // フッター「カテゴリ」列
@@ -30,12 +28,6 @@ export const FOOTER_CATEGORIES: NavItem[] = [
   { label: "チーム運営", href: "/category/management" },
   { label: "トレーニング", href: "/category/training" },
   { label: "競技別", href: "/category/sports" },
-];
-
-// フッター「サイト」列
-export const FOOTER_SITE: NavItem[] = [
-  { label: "about", href: "/about" },
-  { label: "お問い合わせ", href: "/contact" },
 ];
 
 // SNSリンク（CMSと同一）
