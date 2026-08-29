@@ -82,23 +82,6 @@ async function fetchPopularSlugsUncached(limit: number): Promise<string[]> {
     .map(([slug]) => slug);
 }
 
-// 一時デバッグ用（原因特定後に削除）。キャッシュを介さず実行し、環境変数の有無と結果/エラーを返す。
-export async function debugPopular() {
-  const env = {
-    GA4_PROPERTY_ID: !!PROPERTY_ID,
-    GOOGLE_SERVICE_ACCOUNT_EMAIL: !!SA_EMAIL,
-    GOOGLE_PRIVATE_KEY_len: SA_KEY.length,
-    key_starts: SA_KEY.slice(0, 27),
-    key_has_real_newline: SA_KEY.includes("\n"),
-  };
-  try {
-    const slugs = await fetchPopularSlugsUncached(8);
-    return { ok: true, env, slugs };
-  } catch (e) {
-    return { ok: false, env, error: (e as Error).message };
-  }
-}
-
 // ページ側のISR（revalidate=60）でキャッシュされるため、ここでは直接取得する。
 // 失敗時は空配列 → 呼び出し側で最新記事にフォールバック。
 export async function getPopularSlugs(limit = 8): Promise<string[]> {
