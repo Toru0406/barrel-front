@@ -172,42 +172,6 @@ export default async function HomePage() {
             </section>
           )
       )}
-
-      {/* ニュースレターCTA */}
-      <section className="section newsletter-cta">
-        <div className="container newsletter-cta__inner">
-          <p className="newsletter-cta__eyebrow">BARREL Newsletter</p>
-          <h2 className="newsletter-cta__title">
-            指導者の学びが、
-            <br />
-            アマチュアスポーツの現場を変える。
-          </h2>
-          <p className="newsletter-cta__desc">
-            競技を問わず、現場で戦うすべての指導者へ。
-            <br />
-            コーチング・スポーツ科学・チーム運営——
-            <br />
-            現場に直結する知識を、毎週お届けします。
-          </p>
-          <Link href="/blog" className="newsletter-cta__btn">
-            最新記事を受け取る
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
