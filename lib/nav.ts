@@ -1,36 +1,30 @@
-// CMS（cms.getabarrel.com / barrel-theme）のヘッダー・フッターに完全一致させた固定ナビ。
-// CMS側もキュレーション済みの固定メニューのため、WPカテゴリ動的生成ではなくここで定義する。
+import { HUBS } from "./hubs";
+
 export interface NavItem {
   label: string;
   href: string;
 }
 
-// デスクトップ・プライマリナビ（about は www 未実装のため一旦除外）
+/** デスクトップ プライマリナビ（5ハブ + 記事一覧） */
 export const PRIMARY_NAV: NavItem[] = [
-  { label: "指導・育成", href: "/category/coaching" },
-  { label: "コンディショニング", href: "/category/conditioning" },
-  { label: "チーム運営", href: "/category/management" },
+  ...HUBS.map((h) => ({ label: h.short, href: `/hub/${h.id}` })),
+  { label: "記事一覧", href: "/blog" },
 ];
 
-// モバイルメニュー（CMS: 上記＋トレーニング・競技別。about は一旦除外）
+/** モバイルメニュー（ハブ + 記事一覧 + 検索） */
 export const MOBILE_NAV: NavItem[] = [
-  { label: "指導・育成", href: "/category/coaching" },
-  { label: "コンディショニング", href: "/category/conditioning" },
-  { label: "チーム運営", href: "/category/management" },
-  { label: "トレーニング", href: "/category/training" },
-  { label: "競技別", href: "/category/sports" },
+  ...HUBS.map((h) => ({ label: h.label, href: `/hub/${h.id}` })),
+  { label: "記事一覧", href: "/blog" },
+  { label: "検索", href: "/search" },
 ];
 
-// フッター「カテゴリ」列
-export const FOOTER_CATEGORIES: NavItem[] = [
-  { label: "指導・育成", href: "/category/coaching" },
-  { label: "コンディショニング", href: "/category/conditioning" },
-  { label: "チーム運営", href: "/category/management" },
-  { label: "トレーニング", href: "/category/training" },
-  { label: "競技別", href: "/category/sports" },
-];
+/** フッター カテゴリ列（ハブ一覧） */
+export const FOOTER_CATEGORIES: NavItem[] = HUBS.map((h) => ({
+  label: h.label,
+  href: `/hub/${h.id}`,
+}));
 
-// SNSリンク（CMSと同一）
+/** SNSリンク（CMS と同一） */
 export const SOCIAL_LINKS: { label: string; href: string; path: string }[] = [
   {
     label: "Twitter（X）",

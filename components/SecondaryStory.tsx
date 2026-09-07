@@ -7,56 +7,58 @@ import {
   formatDateDot,
   evidenceCount,
 } from "@/lib/wordpress";
+import Eyebrow from "./Eyebrow";
 import EvidenceBadge from "./EvidenceBadge";
 
 interface Props {
   post: WPPost;
 }
 
-export default function PostCard({ post }: Props) {
+/**
+ * サブストーリー: 左に小画像、右にタイトル。
+ * LeadStory の横に 2本並べるレイアウト向け。
+ */
+export default function SecondaryStory({ post }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
   const count = evidenceCount(post);
 
   return (
-    <article
-      style={{
-        border: "1px solid var(--c-line)",
-        backgroundColor: "var(--c-paper)",
-      }}
-    >
-      <Link href={`/blog/${post.slug}`} className="group block">
-        {/* サムネイル（アスペクト比 16:9 固定で CLS 防止） */}
-        <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
+    <article>
+      <Link
+        href={`/blog/${post.slug}`}
+        className="group flex gap-s-4 transition-opacity hover:opacity-75"
+      >
+        {/* 左: 小画像（アスペクト比固定で CLS 防止） */}
+        <div
+          className="relative flex-shrink-0 overflow-hidden"
+          style={{ width: 120, aspectRatio: "4/3" }}
+        >
           {image ? (
             <Image
               src={image.src}
               alt={image.alt}
               fill
-              sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              sizes="120px"
+              className="object-cover"
             />
           ) : (
             <div className="h-full w-full" style={{ backgroundColor: "var(--c-paper-2)" }} />
           )}
         </div>
 
-        {/* カード本文 */}
-        <div className="p-s-4">
-          <div className="flex items-center gap-s-2 mb-s-2">
-            {firstCat && (
-              /* badge クラスは app/blog/[slug]/page.tsx との互換のため保持 */
-              <span className="badge">{firstCat.name}</span>
-            )}
+        {/* 右: テキスト */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-s-2 mb-1">
+            {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
             <EvidenceBadge count={count} />
           </div>
-
           <h2
-            className="line-clamp-2 mb-s-2"
+            className="line-clamp-3"
             style={{
               fontFamily: "var(--f-display)",
-              fontSize: "var(--t-base)",
+              fontSize: "var(--t-sm)",
               fontWeight: 700,
               lineHeight: 1.4,
               letterSpacing: "0.02em",
@@ -64,9 +66,9 @@ export default function PostCard({ post }: Props) {
             }}
             dangerouslySetInnerHTML={{ __html: post.title.rendered }}
           />
-
           <time
             dateTime={post.date}
+            className="mt-1 block"
             style={{
               fontFamily: "var(--f-mono)",
               fontSize: "var(--t-xs)",

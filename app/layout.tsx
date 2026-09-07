@@ -1,62 +1,105 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import {
-  Noto_Sans_JP,
   Shippori_Mincho,
-  Playfair_Display,
-  Noto_Serif_JP,
+  IBM_Plex_Sans_JP,
+  IBM_Plex_Mono,
   Oswald,
 } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-// GA4 測定ID（G-XXXX）。NEXT_PUBLIC_GA_ID を設定したときだけ計測タグを読み込む。
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
-const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-sans",
-});
+/* Display: Shippori Mincho — --font-display */
 const shipporiMincho = Shippori_Mincho({
   subsets: ["latin"],
   weight: ["400", "700"],
-  variable: "--font-serif",
-});
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["italic"],
   variable: "--font-display",
+  display: "swap",
 });
-// CMS(barrel-theme)のホーム用：本文セリフ＝Noto Serif JP、アクセント＝Oswald
-const notoSerifJP = Noto_Serif_JP({
+
+/* Body: IBM Plex Sans JP — --font-body */
+const ibmPlexSansJP = IBM_Plex_Sans_JP({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-serif-jp",
+  weight: ["400", "700"],
+  variable: "--font-body",
+  display: "swap",
 });
+
+/* Utility (数字・eyebrow): Oswald — --font-utility */
 const oswald = Oswald({
   subsets: ["latin"],
-  weight: ["500", "700"],
-  variable: "--font-oswald",
+  weight: ["500"],
+  variable: "--font-utility",
+  display: "swap",
+});
+
+/* Mono (日付・出典数): IBM Plex Mono — --font-mono */
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.getabarrel.com"),
   title: { default: "BARREL", template: "%s | BARREL" },
-  description: "すべての競技人のための、スポーツ科学メディア",
+  description: "研究に基づくスポーツ科学メディア。指導者・選手・保護者へ",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    siteName: "BARREL",
+    locale: "ja_JP",
+  },
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
+};
+
+/* Organization 構造化データ（E-E-A-T 補強） */
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "BARREL",
+  url: "https://www.getabarrel.com",
+  logo: "https://www.getabarrel.com/logo/barrel-logo.png",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJP.variable} ${shipporiMincho.variable} ${playfairDisplay.variable} ${notoSerifJP.variable} ${oswald.variable} font-sans bg-barrel-white`}
+        className={`${shipporiMincho.variable} ${ibmPlexSansJP.variable} ${oswald.variable} ${ibmPlexMono.variable}`}
+        style={{ fontFamily: "var(--f-body)" }}
       >
+        {/* スキップリンク */}
+        <a href="#main" className="skip-link">
+          本文へ
+        </a>
+
         <Header />
-        <main>{children}</main>
+        <main id="main">{children}</main>
         <Footer />
 
+        {/* Organization JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+
+        {/* GA4（NEXT_PUBLIC_GA_ID が設定されているときのみ読み込む） */}
         {GA_ID && (
           <>
             <Script

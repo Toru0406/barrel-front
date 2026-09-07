@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { getPosts } from "@/lib/wordpress";
-import PostCard from "@/components/PostCard";
+import { getPosts, WPPost } from "@/lib/wordpress";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ArticleListItem from "@/components/ArticleListItem";
+import SectionHeading from "@/components/SectionHeading";
 import Pagination from "@/components/Pagination";
 
-export const metadata: Metadata = { title: "記事一覧" };
-export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "記事一覧",
+  description: "研究に基づくスポーツ科学の記事一覧",
+};
+export const revalidate = 300;
 
 interface Props {
   searchParams: { page?: string };
@@ -12,27 +17,76 @@ interface Props {
 
 export default async function BlogPage({ searchParams }: Props) {
   const page = Math.max(1, Number(searchParams.page ?? 1));
-  const { posts, totalPages } = await getPosts({ page, perPage: 12 }).catch(() => ({
-    posts: [],
-    total: 0,
-    totalPages: 1,
-  }));
+
+  let posts: WPPost[] = [];
+  let totalPages = 1;
+  let total = 0;
+
+  try {
+    const result = await getPosts({ page, perPage: 20 });
+    posts = result.posts;
+    totalPages = result.totalPages;
+    total = result.total;
+  } catch {
+    /* WP エラー → 空状態を表示 */
+  }
 
   return (
-    <div className="bg-barrel-white min-h-screen">
-      <div className="section-base max-w-7xl mx-auto">
-        <h1 className="section-title">記事一覧</h1>
-        {posts.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-            <Pagination currentPage={page} totalPages={totalPages} basePath="/blog" />
-          </>
+    <div style={{ backgroundColor: "var(--c-paper)", minHeight: "100vh" }}>
+      <div className="mx-auto px-4" style={{ maxWidth: 1240 }}>
+        <Breadcrumbs
+          items={[{ label: "ホーム", href: "/" }, { label: "記事一覧" }]}
+        />
+      </div>
+
+      {/* ヘッダー */}
+      <header
+        style={{
+          borderBottom: "1px solid var(--c-line)",
+          paddingBottom: "var(--s-6)",
+          marginBottom: "var(--s-7)",
+        }}
+      >
+        <div className="mx-auto px-4" style={{ maxWidth: 1240 }}>
+          <h1
+            style={{
+              fontFamily: "var(--f-display)",
+              fontSize: "var(--t-hero)",
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+              fontFeatureSettings: '"palt" 1',
+              color: "var(--c-ink)",
+              lineHeight: 1.2,
+            }}
+          >
+            記事一覧
+          </h1>
+        </div>
+      </header>
+
+      {/* 記事リスト */}
+      <div className="mx-auto px-4 pb-s-8" style={{ maxWidth: 1240 }}>
+        {posts.length === 0 ? (
+          <p
+            className="py-s-8 text-center"
+            style={{ fontFamily: "var(--f-body)", color: "var(--c-ink-muted)" }}
+          >
+            記事がありません
+          </p>
         ) : (
-          <p className="font-sans text-barrel-gray-600 text-center py-20">記事がありません</p>
+          <>
+            <SectionHeading
+              title={`全 ${total} 件`}
+            />
+            {posts.map((post) => (
+              <ArticleListItem key={post.id} post={post} showThumbnail={false} />
+            ))}
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              basePath="/blog"
+            />
+          </>
         )}
       </div>
     </div>
