@@ -128,3 +128,81 @@ body {
 .prose tr:hover td {
   background-color: #f5f5f5;
 }
+
+/* =============================================
+   Article injections from barrel-theme-engine
+   .barrel-pr  — PR（アフィリエイト）開示。ステマ規制上、本文と同じ文字サイズを維持する
+   .barrel-cta — 記事内の商品CTAカード
+   ============================================= */
+
+/* PR開示：本文と同サイズ（縮小禁止）。色のみ控えめにする */
+.prose .barrel-pr {
+  font-size: 1rem;
+  line-height: 1.9;
+  margin: 0 0 1.5em;
+  padding: 0.6em 0.9em;
+  color: #666666;
+  background-color: #F5F5F3;
+  border-left: 3px solid #E8D5B0;
+}
+
+.prose .barrel-pr strong {
+  font-weight: 500;
+  color: #666666;
+}
+
+/* CTAカード */
+.prose .barrel-cta {
+  margin: 2.5em 0;
+  padding: 1.5em 1.5em 1.25em;
+  background-color: #FBF6EC;
+  border: 1px solid #E8D5B0;
+  border-top: 3px solid #0D3320;
+}
+
+.prose .barrel-cta h3 {
+  margin: 0 0 0.5em;
+  padding: 0;
+  border-left: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #0D3320;
+}
+
+.prose .barrel-cta p {
+  margin: 0 0 0.75em;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: #333333;
+}
+
+.prose .barrel-cta p:last-child {
+  margin-bottom: 0;
+}
+
+/* 商品リンク：ボタン風 */
+.prose .barrel-cta a {
+  display: inline-block;
+  margin-top: 0.25em;
+  padding: 0.75em 1.5em;
+  background-color: #0D3320;
+  color: #E8D5B0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.prose .barrel-cta a:hover {
+  background-color: #E8D5B0;
+  color: #0D3320;
+}
+
+/* 価格注記：小さく控えめに */
+.prose .barrel-cta .barrel-cta-price {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #666666;
+}

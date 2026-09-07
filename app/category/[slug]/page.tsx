@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getCategoryBySlug, getCategories, getPosts } from "@/lib/wordpress";
 import PostCard from "@/components/PostCard";
 import Pagination from "@/components/Pagination";
+import LineCta from "@/components/LineCta";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -76,6 +77,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             このカテゴリの記事はありません
           </p>
         )}
+
+        <LineCta className="mt-20" />
       </div>
     </div>
   );

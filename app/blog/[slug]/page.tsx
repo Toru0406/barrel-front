@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import LineCta from "@/components/LineCta";
 import {
   getPostBySlug,
   getPosts,
@@ -86,6 +87,8 @@ export default async function BlogPostPage({ params }: Props) {
         />
 
         {/* 戻るリンク */}
+        <LineCta className="mt-16" />
+
         <div className="mt-16 pt-8 border-t border-barrel-gray-200">
           <Link
             href="/blog"
