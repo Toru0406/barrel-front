@@ -29,7 +29,7 @@ export default function LeadStory({ post }: Props) {
 
   return (
     <article>
-      <Link href={`/blog/${post.slug}`} className="group block">
+      <Link href={`/articles/${post.slug}`} className="group block">
         {/* 16:9 画像（CLS 防止のためアスペクト比固定） */}
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
           {image ? (
@@ -59,35 +59,16 @@ export default function LeadStory({ post }: Props) {
 
           {/* hero タイトル: --i:1 */}
           <h2
-            className="rise"
-            style={
-              {
-                "--i": 1,
-                fontFamily: "var(--f-display)",
-                fontSize: "var(--t-hero)",
-                fontWeight: 700,
-                lineHeight: 1.2,
-                letterSpacing: "0.02em",
-                fontFeatureSettings: '"palt" 1',
-                color: "var(--c-ink)",
-              } as React.CSSProperties
-            }
+            className="rise title-hero"
+            style={{ "--i": 1 } as React.CSSProperties}
             dangerouslySetInnerHTML={{ __html: post.title.rendered }}
           />
 
           {/* リード段落: --i:2 */}
           {lead && (
             <p
-              className="rise mt-s-3"
-              style={
-                {
-                  "--i": 2,
-                  fontFamily: "var(--f-body)",
-                  fontSize: "var(--t-base)",
-                  color: "var(--c-ink-muted)",
-                  lineHeight: 1.75,
-                } as React.CSSProperties
-              }
+              className="rise mt-s-3 dek"
+              style={{ "--i": 2 } as React.CSSProperties}
             >
               {lead}
             </p>

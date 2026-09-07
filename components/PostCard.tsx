@@ -26,7 +26,7 @@ export default function PostCard({ post }: Props) {
         backgroundColor: "var(--c-paper)",
       }}
     >
-      <Link href={`/blog/${post.slug}`} className="group block">
+      <Link href={`/articles/${post.slug}`} className="group block">
         {/* サムネイル（アスペクト比 16:9 固定で CLS 防止） */}
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
           {image ? (

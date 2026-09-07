@@ -15,9 +15,10 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 /* Display: Shippori Mincho — --font-display */
 const shipporiMincho = Shippori_Mincho({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["700"],
   variable: "--font-display",
   display: "swap",
+  preload: false, // 和文フォントは数百スライスあり、全 preload はモバイルで逆効果（swap で段階表示させる）
 });
 
 /* Body: IBM Plex Sans JP — --font-body */
@@ -26,6 +27,7 @@ const ibmPlexSansJP = IBM_Plex_Sans_JP({
   weight: ["400", "700"],
   variable: "--font-body",
   display: "swap",
+  preload: false,
 });
 
 /* Utility (数字・eyebrow): Oswald — --font-utility */

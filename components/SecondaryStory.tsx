@@ -27,7 +27,7 @@ export default function SecondaryStory({ post }: Props) {
   return (
     <article>
       <Link
-        href={`/blog/${post.slug}`}
+        href={`/articles/${post.slug}`}
         className="group flex gap-s-4 transition-opacity hover:opacity-75"
       >
         {/* 左: 小画像（アスペクト比固定で CLS 防止） */}

@@ -277,3 +277,91 @@ h1, h2, h3, h4, h5, h6 {
   font-size: var(--t-sm);
   color: var(--c-ink-muted);
 }
+
+/* =============================================
+   モバイル（〜767px）: タイプスケールと行間を読みやすさ優先に切り替える。
+   コンポーネントは var(--t-*) を参照しているので、ここを変えるだけで全ページに効く。
+   ============================================= */
+@media (max-width: 767px) {
+  :root {
+    --t-lg:   17px;
+    --t-xl:   20px;
+    --t-2xl:  24px;
+    --t-hero: 26px;
+  }
+}
+
+/* 見出し（hero）: 端末幅で行間を変える。和文の長い見出しは 1.2 だと詰まって読みにくい */
+.title-hero {
+  font-family: var(--f-display);
+  font-size: var(--t-hero);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+  color: var(--c-ink);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  word-break: auto-phrase; /* 対応ブラウザ（Chrome/Android 119+）では文節単位で折り返す。非対応は無視される */
+}
+@media (max-width: 767px) {
+  .title-hero { line-height: 1.34; letter-spacing: 0.01em; }
+}
+
+/* 要約（dek）: モバイルでは3行で止める */
+.dek {
+  font-family: var(--f-body);
+  font-size: var(--t-base);
+  line-height: 1.75;
+  color: var(--c-ink-muted);
+  text-wrap: pretty;
+}
+@media (max-width: 767px) {
+  .dek {
+    font-size: var(--t-sm);
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* 和文の eyebrow は字間を詰めすぎない・広げすぎない */
+@media (max-width: 767px) {
+  .eyebrow { letter-spacing: 0.06em; }
+}
+
+/* パンくずの現在ページはモバイルでは省く（長文タイトルが2〜3行を占有するため） */
+@media (max-width: 767px) {
+  .crumb-current { display: none; }
+}
+
+/* リード画像はモバイルで左右いっぱいに */
+@media (max-width: 639px) {
+  .lead-image {
+    margin-left: calc(-1 * var(--s-4));
+    margin-right: calc(-1 * var(--s-4));
+  }
+}
+
+/* 記事本文のモバイル最適化 */
+@media (max-width: 767px) {
+  .prose-barrel { font-size: var(--t-base); line-height: 1.85; }
+  .prose-barrel p { margin-top: 1.1em; margin-bottom: 1.1em; }
+  .prose-barrel h2 {
+    font-size: var(--t-xl);
+    line-height: 1.35;
+    word-break: auto-phrase;
+    margin-top: 2em;
+    padding-left: var(--s-2);
+  }
+  .prose-barrel h3 { font-size: var(--t-lg); line-height: 1.4; }
+  .prose-barrel table { font-size: var(--t-xs); }
+  .prose-barrel th, .prose-barrel td { padding: var(--s-2) var(--s-3); white-space: nowrap; }
+  .prose-barrel img { margin-left: auto; margin-right: auto; }
+}
+
+/* 見出し・タイトル全般: 長い英数字（p<0.01、URL）で横にはみ出さない */
+h1, h2, h3, .prose-barrel { overflow-wrap: anywhere; }
+.prose-barrel p, .prose-barrel li { text-wrap: pretty; }

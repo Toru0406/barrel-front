@@ -81,29 +81,10 @@ export default async function HubPage({ params, searchParams }: Props) {
       >
         <div className="mx-auto px-4" style={{ maxWidth: 1240 }}>
           <Eyebrow className="mb-s-2">TOPIC</Eyebrow>
-          <h1
-            className="mb-s-3"
-            style={{
-              fontFamily: "var(--f-display)",
-              fontSize: "var(--t-hero)",
-              fontWeight: 700,
-              letterSpacing: "0.02em",
-              fontFeatureSettings: '"palt" 1',
-              color: "var(--c-ink)",
-              lineHeight: 1.2,
-            }}
-          >
+          <h1 className="title-hero mb-s-3">
             {hub.label}
           </h1>
-          <p
-            style={{
-              fontFamily: "var(--f-body)",
-              fontSize: "var(--t-base)",
-              color: "var(--c-ink-muted)",
-              lineHeight: 1.75,
-              maxWidth: 640,
-            }}
-          >
+          <p className="dek" style={{ maxWidth: 640 }}>
             {hub.tagline}
           </p>
         </div>

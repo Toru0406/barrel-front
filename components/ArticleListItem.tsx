@@ -23,7 +23,7 @@ export default function ArticleListItem({ post, showThumbnail = true }: Props) {
   return (
     <article>
       <Link
-        href={`/blog/${post.slug}`}
+        href={`/articles/${post.slug}`}
         className="flex items-start gap-s-4 py-s-3 border-b transition-opacity hover:opacity-75"
         style={{ borderColor: "var(--c-line)" }}
       >

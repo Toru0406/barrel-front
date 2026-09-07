@@ -205,19 +205,13 @@ export default async function ArticlePage({ params }: Props) {
             {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
 
             <h1
-              className="font-serif text-hero text-balance mt-2 mb-4 font-bold"
-              style={{ lineHeight: 1.2, color: "var(--c-ink, #14201A)" }}
+              className="title-hero mt-2 mb-4"
               dangerouslySetInnerHTML={{ __html: post.title.rendered }}
             />
 
             {/* dek */}
             {description && (
-              <p
-                className="font-sans text-lg mb-6 leading-relaxed"
-                style={{ color: "var(--c-ink-muted, #5F6B64)" }}
-              >
-                {description}
-              </p>
+              <p className="dek mb-6">{description}</p>
             )}
 
             {/* メタ行 */}
@@ -246,7 +240,7 @@ export default async function ArticlePage({ params }: Props) {
 
             {/* リード画像 */}
             {image && (
-              <div className="aspect-video w-full overflow-hidden mb-8">
+              <div className="lead-image aspect-video overflow-hidden mb-8">
                 <Image
                   src={image.src}
                   alt={image.alt}

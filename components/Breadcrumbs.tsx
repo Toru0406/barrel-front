@@ -55,7 +55,7 @@ export default function Breadcrumbs({ items }: Props) {
                   {item.label}
                 </Link>
               ) : (
-                <span aria-current="page" style={{ color: "var(--c-ink)" }}>
+                <span aria-current="page" className="crumb-current" style={{ color: "var(--c-ink)" }}>
                   {item.label}
                 </span>
               )}
