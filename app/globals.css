@@ -288,6 +288,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 .prose-barrel .barrel-picks p,
 .prose-barrel .barrel-product p { margin: 0; }
+/* WordPress の自動整形（wpautop）が画像リンクの後ろに </p> を差し込み、ブラウザが空の <p> を作る。
+   それがグリッド／フレックスの子として1枠占有し、商品ボックスが崩れる（実測: 本文が160px列へ落ちた）ため消す */
+.prose-barrel .barrel-picks p:empty,
+.prose-barrel .barrel-product p:empty { display: none; }
 .prose-barrel .barrel-picks-title {
   font-family: var(--f-display);
   font-size: var(--t-lg);
@@ -404,6 +408,8 @@ h1, h2, h3, h4, h5, h6 {
   outline-offset: 2px;
 }
 .prose-barrel .barrel-pick .barrel-btn { width: 100%; margin-top: auto; }
+/* wpautop がボタンを <p> で包むと上の margin-top:auto が <p> の中で効き、商品名の行数でボタン位置がずれるため、包みごと下に寄せる */
+.prose-barrel .barrel-pick-body > :last-child { margin-top: auto; }
 .prose-barrel .barrel-aff-note {
   font-size: var(--t-xs);
   color: var(--c-ink-muted);
