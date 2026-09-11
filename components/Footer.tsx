@@ -118,12 +118,11 @@ export default function Footer() {
 
         {/* フッター下段 */}
         <div
-          className="flex flex-col items-center justify-between gap-3 py-5 text-center text-xs sm:flex-row sm:text-left"
+          // 親の px-6（24px）と同じ量だけ左右に広げる。var(--s-6)（32px）で広げていたためスマホで横に8pxはみ出していた
+          className="-mx-6 flex flex-col items-center justify-between gap-3 px-6 py-5 text-center text-xs sm:flex-row sm:text-left"
           style={{
             backgroundColor: "var(--c-green-deep)",
             color: "color-mix(in srgb, var(--c-beige) 45%, transparent)",
-            marginInline: "calc(var(--s-6) * -1)",
-            paddingInline: "var(--s-6)",
           }}
         >
           <span>© 2026 BARREL. All rights reserved.</span>

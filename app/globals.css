@@ -369,6 +369,13 @@ h1, h2, h3, h4, h5, h6 {
   border-top: var(--lw-1) solid var(--c-line);
   border-bottom: var(--lw-1) solid var(--c-line);
 }
+/* 楽天APIで照合できない商品・シリーズの検索リンクは画像と価格を推測で出さないため、画像列を持たない1列にする */
+.prose-barrel .barrel-product--noimage { grid-template-columns: 1fr; }
+@media (max-width: 767px) {
+  .prose-barrel .barrel-product.barrel-product--noimage { grid-template-columns: 1fr; }
+  .prose-barrel .barrel-product--noimage .barrel-product-name,
+  .prose-barrel .barrel-product--noimage .barrel-product-meta { grid-column: 1; }
+}
 .prose-barrel .barrel-product-body {
   display: flex;
   flex-direction: column;

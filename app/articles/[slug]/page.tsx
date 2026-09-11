@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import {
   getPostBySlug,
-  getPosts,
   getFeaturedImage,
   getPostCategories,
   formatDateDot,
@@ -48,12 +47,9 @@ const BASE_URL = "https://www.getabarrel.com";
 // ============================================================
 
 export async function generateStaticParams() {
-  try {
-    const { posts } = await getPosts({ perPage: 50 });
-    return posts.map((p) => ({ slug: p.slug }));
-  } catch {
-    return [];
-  }
+  // ビルド時にプリレンダーすると、デプロイ直後にほぼ全記事が not-found のページとして配信された（2026-09-11 実測 44本中42本）。
+  // dynamicParams=true と revalidate=300 により初回アクセス時に生成・キャッシュされるため、ビルド時は生成しない
+  return [];
 }
 
 // ============================================================
