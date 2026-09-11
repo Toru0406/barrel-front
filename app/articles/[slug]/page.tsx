@@ -191,12 +191,12 @@ export default async function ArticlePage({ params }: Props) {
       >
         <Breadcrumbs items={breadcrumbItems} />
 
-        <div className="lg:grid lg:grid-cols-12 lg:gap-12 lg:items-start">
-          {/* ── 記事本文カラム (lg: 8/12) ── */}
-          <div className="lg:col-span-8">
+        {/* 見出し・リード画像・本文・表を同じ幅に揃えるため、目次は列を取らない */}
+        <article>
+          <div>
             {/* モバイル目次 — lg で非表示 */}
             <div className="lg:hidden mb-6">
-              <ArticleToc headings={processed.headings} />
+              <ArticleToc headings={processed.headings} variant="inline" />
             </div>
 
             {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
@@ -270,16 +270,11 @@ export default async function ArticlePage({ params }: Props) {
             <RelatedArticles posts={relatedPosts} />
           </div>
 
-          {/* ── デスクトップ TOC サイドバー (lg: 4/12, sticky) ── */}
-          <aside
-            className="hidden lg:block lg:col-span-4"
-            aria-label="目次"
-          >
-            <div className="sticky top-24 pt-2">
-              <ArticleToc headings={processed.headings} />
-            </div>
-          </aside>
-        </div>
+          {/* ── デスクトップ目次: 画面右下に固定し、ホバー・クリックで開く ── */}
+          <div className="hidden lg:block">
+            <ArticleToc headings={processed.headings} variant="floating" />
+          </div>
+        </article>
       </div>
     </>
   );

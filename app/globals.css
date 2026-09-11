@@ -257,6 +257,94 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--c-paper-2);
 }
 
+/* 固定ヘッダー（Header.tsx の h-[56px]）の高さ。目次の位置と、見出しへ移動した時の余白に使う */
+:root { --header-h: 56px; }
+/* 目次から移動した見出しが固定ヘッダーの裏に隠れ、どこへ飛んだか分からなかったため、ヘッダー分下げて止める */
+.prose-barrel :is(h2, h3) { scroll-margin-top: calc(var(--header-h) + var(--s-5)); }
+
+/* 記事目次（デスクトップ）: 列を取らずにヘッダー直下の右上へ固定し、ホバー・クリックで一覧を下に開く。影は使わず罫線で面を分ける（DESIGN.md） */
+.toc-float {
+  position: fixed;
+  top: calc(var(--header-h) + var(--s-4));
+  right: var(--s-6);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-2);
+  /* 読んでいる間は下の本文が透けて見えるよう半透明にし、カーソルを当てた時とキーボード操作中だけ不透明にする */
+  opacity: 0.5;
+  transition: opacity 150ms ease-out;
+}
+.toc-float:hover,
+.toc-float:focus-within { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .toc-float { transition: none; }
+}
+.toc-float-panel {
+  width: min(24rem, calc(100vw - var(--s-8)));
+  max-height: calc(100vh - var(--header-h) - var(--s-8) - var(--s-7));
+  overflow-y: auto;
+  padding: var(--s-3) var(--s-2);
+  background-color: var(--c-paper);
+  border: var(--lw-1) solid var(--c-line);
+  border-top: var(--lw-3) solid var(--c-green);
+}
+.toc-float-label {
+  margin: 0 0 var(--s-2);
+  padding: 0 var(--s-3);
+  font-family: var(--f-body);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--c-ink-muted);
+}
+/* 12pxのグレーでは読みにくかったため、本文と同じ書体・本文色の14pxにし、大見出しは太字・小見出しは字下げで階層を示す */
+.toc-float-link {
+  display: block;
+  padding: var(--s-2) var(--s-3);
+  border-left: var(--lw-3) solid transparent;
+  font-family: var(--f-body);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--c-ink);
+  text-decoration: none;
+}
+.toc-float-link--sub {
+  padding-left: var(--s-6);
+  font-weight: 400;
+}
+.toc-float-link:hover { background-color: var(--c-paper-2); }
+.toc-float-link:focus-visible {
+  outline: var(--lw-3) solid var(--c-green);
+  outline-offset: -3px;
+}
+/* 現在の節（選んだ項目を含む）は、色だけに頼らず左の太線と背景でも示す */
+.toc-float-link[aria-current="location"] {
+  border-left-color: var(--c-green);
+  background-color: var(--c-paper-2);
+  color: var(--c-green);
+  font-weight: 700;
+}
+/* 本文に重ならないよう「目次」だけの小さなボタンにする（1440px幅なら記事幅の外の余白に収まる）。現在地は開いた一覧の強調で示す */
+.toc-float-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--s-5);
+  border-radius: var(--r-1);
+  background-color: var(--c-green);
+  color: var(--c-paper);
+  font-family: var(--f-body);
+  font-size: var(--t-sm);
+  font-weight: 700;
+}
+.toc-float-button:hover { background-color: var(--c-green-deep); }
+.toc-float-button:focus-visible {
+  outline: var(--lw-3) solid var(--c-green);
+  outline-offset: 2px;
+}
 /* PR表記（本文冒頭、body と同サイズ、muted） */
 .barrel-pr {
   font-family: var(--f-body);
@@ -381,10 +469,29 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   gap: var(--s-3);
 }
+/* 購入先ボタン。楽天とAmazonは同格の購入先なので同じ幅で並べ、「楽天で似た商品と比べる」は探索用なのでボタンにせず下の文字リンクにする
+   （3つのボタンが文言の長さで幅違いになり、3つ目だけ折り返していた）。HTMLは公開済み記事に保存済みのため、クラスではなく遷移先で見分ける */
 .prose-barrel .barrel-product-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
+  max-width: 40rem; /* 記事幅いっぱいに伸ばすと1ボタン500px超になり間延びする */
+}
+.prose-barrel .barrel-product-actions .barrel-btn { width: 100%; padding: 0 var(--s-3); }
+.prose-barrel .barrel-product-actions .barrel-btn--secondary[href*="search.rakuten.co.jp"] {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+@media (min-width: 768px) {
+  .prose-barrel .barrel-product-actions:has(> .barrel-btn--secondary:not([href*="search.rakuten.co.jp"])) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .prose-barrel .barrel-btn {
   display: inline-flex;
@@ -455,7 +562,6 @@ h1, h2, h3, h4, h5, h6 {
   .prose-barrel .barrel-product-name { grid-column: 2; font-size: var(--t-base); }
   .prose-barrel .barrel-product-meta { grid-column: 2; }
   .prose-barrel .barrel-product-actions { grid-column: 1 / -1; }
-  .prose-barrel .barrel-product-actions .barrel-btn { width: 100%; }
 }
 
 /* =============================================
