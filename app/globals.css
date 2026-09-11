@@ -278,6 +278,140 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--c-ink-muted);
 }
 
+/* 商品導線（比較表直後のカード・各商品のボックス・まとめのカード）。HTMLは theme-engine の productBox.ts が生成 */
+.prose-barrel .barrel-picks,
+.prose-barrel .barrel-product {
+  border: var(--lw-1) solid var(--c-line);
+  background-color: var(--c-paper-2);
+  margin: var(--s-6) 0;
+}
+.prose-barrel .barrel-picks { padding: var(--s-5); }
+.prose-barrel .barrel-picks p,
+.prose-barrel .barrel-product p { margin: 0; }
+.prose-barrel .barrel-picks-title {
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  margin-bottom: var(--s-4) !important;
+}
+.prose-barrel .barrel-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--s-4);
+}
+.prose-barrel .barrel-pick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  background-color: var(--c-paper);
+  border: var(--lw-1) solid var(--c-line);
+  padding: var(--s-4);
+}
+.prose-barrel .barrel-pick-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  flex: 1;
+}
+.prose-barrel .barrel-pick-label {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--c-green);
+}
+.prose-barrel .barrel-pick-name,
+.prose-barrel .barrel-product-name {
+  font-weight: 700;
+  line-height: 1.4;
+}
+.prose-barrel .barrel-pick-meta,
+.prose-barrel .barrel-product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s-3);
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  color: var(--c-ink-muted);
+}
+.prose-barrel .barrel-price { color: var(--c-ink); font-weight: 600; }
+.prose-barrel .barrel-product-imglink { display: block; text-decoration: none; }
+.prose-barrel .barrel-product-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background-color: var(--c-paper);
+  margin: 0 auto;
+}
+.prose-barrel .barrel-pick .barrel-product-img { max-width: 120px; }
+.prose-barrel .barrel-product {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  align-items: center;
+  gap: var(--s-5);
+  padding: var(--s-5);
+}
+.prose-barrel .barrel-product-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.prose-barrel .barrel-product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.prose-barrel .barrel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 var(--s-5);
+  border-radius: var(--r-1);
+  font-family: var(--f-body);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+}
+.prose-barrel .barrel-btn--primary {
+  background-color: var(--c-green);
+  color: var(--c-beige);
+}
+.prose-barrel .barrel-btn--primary:hover { background-color: var(--c-green-deep); }
+.prose-barrel .barrel-btn--secondary {
+  border: var(--lw-1) solid var(--c-green);
+  background-color: transparent;
+  color: var(--c-green);
+}
+.prose-barrel .barrel-btn:focus-visible {
+  outline: var(--lw-3) solid var(--c-green);
+  outline-offset: 2px;
+}
+.prose-barrel .barrel-pick .barrel-btn { width: 100%; margin-top: auto; }
+.prose-barrel .barrel-aff-note {
+  font-size: var(--t-xs);
+  color: var(--c-ink-muted);
+  margin-top: var(--s-4) !important;
+}
+.prose-barrel .barrel-cta-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  background-color: var(--c-paper);
+  margin: 0;
+}
+@media (max-width: 767px) {
+  .prose-barrel .barrel-product { grid-template-columns: 1fr; }
+  .prose-barrel .barrel-product .barrel-product-img { max-width: 200px; }
+  .prose-barrel .barrel-product-actions .barrel-btn { width: 100%; }
+  /* スマホではカードを横長にして、4商品でも縦に間延びさせない */
+  .prose-barrel .barrel-pick { flex-direction: row; align-items: flex-start; }
+  .prose-barrel .barrel-pick .barrel-product-imglink { flex: 0 0 88px; }
+  .prose-barrel .barrel-pick .barrel-product-img { max-width: 88px; }
+}
+
 /* =============================================
    モバイル（〜767px）: タイプスケールと行間を読みやすさ優先に切り替える。
    コンポーネントは var(--t-*) を参照しているので、ここを変えるだけで全ページに効く。

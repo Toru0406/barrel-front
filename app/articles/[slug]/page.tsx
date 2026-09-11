@@ -28,6 +28,7 @@ import EvidenceBadge from "@/components/EvidenceBadge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import type { BreadcrumbItem } from "@/components/Breadcrumbs";
 import LineCta from "@/components/LineCta";
+import AffiliateClickTracker from "@/components/AffiliateClickTracker";
 
 // ============================================================
 // Route config
@@ -261,6 +262,7 @@ export default async function ArticlePage({ params }: Props) {
               className="prose-barrel mt-8"
               dangerouslySetInnerHTML={{ __html: processed.html }}
             />
+            <AffiliateClickTracker />
 
             {/* シェアバー */}
             <ShareBar url={canonical} title={plainTitle} />
