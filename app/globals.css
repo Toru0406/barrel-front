@@ -278,34 +278,33 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--c-ink-muted);
 }
 
-/* 商品導線（比較表直後のカード・各商品のボックス・まとめのカード）。HTMLは theme-engine の productBox.ts が生成 */
-.prose-barrel .barrel-picks,
-.prose-barrel .barrel-product {
-  border: var(--lw-1) solid var(--c-line);
-  background-color: var(--c-paper-2);
-  margin: var(--s-6) 0;
+/* 商品導線（比較表直後の一覧・各商品のボックス・まとめの一覧）。HTMLは theme-engine の productBox.ts が生成。
+   面を塗った枠やカードの入れ子にせず、記事カードと同じ「罫線で区切る」誌面の作りに揃える */
+.prose-barrel .barrel-picks {
+  margin: var(--s-7) 0;
+  padding: var(--s-4) 0 var(--s-5);
+  border-top: var(--lw-3) solid var(--c-green);
+  border-bottom: var(--lw-1) solid var(--c-line);
 }
-.prose-barrel .barrel-picks { padding: var(--s-5); }
 .prose-barrel .barrel-picks p,
 .prose-barrel .barrel-product p { margin: 0; }
 .prose-barrel .barrel-picks-title {
   font-family: var(--f-display);
   font-size: var(--t-lg);
   font-weight: 700;
-  margin-bottom: var(--s-4) !important;
+  letter-spacing: 0.02em;
+  margin-bottom: var(--s-5) !important;
 }
 .prose-barrel .barrel-picks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: var(--s-4);
+  /* カードは最大4点（productBox.ts の MAX_CARDS）。auto-fill だと空の5列目ができて右に隙間が残るため列数を固定する */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-6) var(--s-5);
 }
 .prose-barrel .barrel-pick {
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
-  background-color: var(--c-paper);
-  border: var(--lw-1) solid var(--c-line);
-  padding: var(--s-4);
 }
 .prose-barrel .barrel-pick-body {
   display: flex;
@@ -320,9 +319,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 .prose-barrel .barrel-pick-name,
 .prose-barrel .barrel-product-name {
+  font-family: var(--f-display);
   font-weight: 700;
   line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--c-ink);
 }
+.prose-barrel .barrel-product-name { font-size: var(--t-lg); }
 .prose-barrel .barrel-pick-meta,
 .prose-barrel .barrel-product-meta {
   display: flex;
@@ -333,23 +336,34 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--c-ink-muted);
 }
 .prose-barrel .barrel-price { color: var(--c-ink); font-weight: 600; }
-.prose-barrel .barrel-product-imglink { display: block; text-decoration: none; }
+/* 図版の台紙。店舗の商品写真は純白背景で、紙色の面に置くと白い矩形が浮くため、
+   紙色の台紙に乗算で重ねて白を紙色へ馴染ませる（画像の切り抜き・文字入れはしない＝楽天の画像利用ルール内） */
+.prose-barrel .barrel-product-imglink {
+  display: block;
+  aspect-ratio: 1;
+  padding: var(--s-3);
+  background-color: var(--c-paper);
+  border: var(--lw-1) solid var(--c-line);
+  text-decoration: none;
+}
+.prose-barrel .barrel-product-imglink:hover { border-color: var(--c-ink-muted); }
 .prose-barrel .barrel-product-img {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: contain;
-  background-color: var(--c-paper);
-  margin: 0 auto;
+  mix-blend-mode: multiply;
+  margin: 0;
 }
-.prose-barrel .barrel-pick .barrel-product-img { max-width: 120px; }
 .prose-barrel .barrel-product {
   display: grid;
   grid-template-columns: 160px 1fr;
   align-items: center;
   gap: var(--s-5);
-  padding: var(--s-5);
+  margin: var(--s-5) 0 var(--s-6);
+  padding: var(--s-4) 0;
+  border-top: var(--lw-1) solid var(--c-line);
+  border-bottom: var(--lw-1) solid var(--c-line);
 }
 .prose-barrel .barrel-product-body {
   display: flex;
@@ -396,20 +410,39 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: var(--s-4) !important;
 }
 .prose-barrel .barrel-cta-img {
+  display: block;
   width: 120px;
   height: 120px;
+  padding: var(--s-2);
   object-fit: contain;
+  border: var(--lw-1) solid var(--c-line);
   background-color: var(--c-paper);
+  mix-blend-mode: multiply;
   margin: 0;
 }
 @media (max-width: 767px) {
-  .prose-barrel .barrel-product { grid-template-columns: 1fr; }
-  .prose-barrel .barrel-product .barrel-product-img { max-width: 200px; }
+  /* スマホは「小さな台紙＋商品名・価格」の横組みにし、ボタンだけ全幅で下に置く（大きな画像を余白の中央に浮かせない） */
+  .prose-barrel .barrel-picks-grid { grid-template-columns: 1fr; gap: 0; }
+  .prose-barrel .barrel-pick {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding: var(--s-4) 0;
+    border-top: var(--lw-1) solid var(--c-line);
+  }
+  .prose-barrel .barrel-pick:first-child { padding-top: 0; border-top: 0; }
+  .prose-barrel .barrel-pick .barrel-product-imglink { flex: 0 0 96px; padding: var(--s-2); }
+  .prose-barrel .barrel-product {
+    grid-template-columns: 96px 1fr;
+    align-items: start;
+    gap: var(--s-3) var(--s-4);
+  }
+  .prose-barrel .barrel-product .barrel-product-imglink { grid-row: 1 / span 2; padding: var(--s-2); }
+  .prose-barrel .barrel-product-body { display: contents; }
+  .prose-barrel .barrel-product-name { grid-column: 2; font-size: var(--t-base); }
+  .prose-barrel .barrel-product-meta { grid-column: 2; }
+  .prose-barrel .barrel-product-actions { grid-column: 1 / -1; }
   .prose-barrel .barrel-product-actions .barrel-btn { width: 100%; }
-  /* スマホではカードを横長にして、4商品でも縦に間延びさせない */
-  .prose-barrel .barrel-pick { flex-direction: row; align-items: flex-start; }
-  .prose-barrel .barrel-pick .barrel-product-imglink { flex: 0 0 88px; }
-  .prose-barrel .barrel-pick .barrel-product-img { max-width: 88px; }
 }
 
 /* =============================================
