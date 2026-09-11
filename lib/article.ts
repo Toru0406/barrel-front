@@ -86,7 +86,7 @@ export function processContent(raw: string): ProcessedContent {
     const stripAttr = (a: string, name: string): string =>
       a.replace(new RegExp(`\\s+${name}="[^"]*"`, "gi"), "");
 
-    if (href.includes("af.moshimo.com")) {
+    if (href.includes("af.moshimo.com") || /^https:\/\/(www\.)?amazon\.co\.jp\//.test(href)) {
       const parts = new Set([...parseRel(), "nofollow", "sponsored", "noopener"]);
       let clean = stripAttr(attrs, "rel");
       clean = stripAttr(clean, "target");

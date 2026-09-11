@@ -12,7 +12,7 @@ export default function AffiliateClickTracker() {
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const target = e.target instanceof Element ? e.target : null;
-      const a = target?.closest('a[href*="af.moshimo.com"]');
+      const a = target?.closest('a[href*="af.moshimo.com"], a[href*="amazon.co.jp"]');
       if (!a) return;
       trackEvent({
         action: "affiliate_click",
