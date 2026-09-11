@@ -79,6 +79,30 @@ export default function ArticleToc({ headings, variant }: Props) {
 
   if (!headings.length) return null;
 
+  // モバイルの折りたたみとデスクトップの一覧で同じ見た目（14px・本文色・現在地は左罫と背景）にする
+  const tocList = (onNavigate?: () => void) => (
+    <nav aria-label="目次">
+      <ol>
+        {headings.map((h) => (
+          <li key={h.id}>
+            <a
+              href={`#${h.id}`}
+              onClick={() => {
+                // 移動直後は判定帯に見出しが入らないことがあるため、選んだ項目をその場で現在地にする
+                setActiveId(h.id);
+                onNavigate?.();
+              }}
+              aria-current={activeId === h.id ? "location" : undefined}
+              className={`toc-link${h.level === 3 ? " toc-link--sub" : ""}`}
+            >
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+
   if (variant === "inline") {
     return (
       <details
@@ -86,44 +110,16 @@ export default function ArticleToc({ headings, variant }: Props) {
         style={{ borderColor: "var(--c-line, #D9D7CE)" }}
       >
         <summary
-          className="cursor-pointer select-none px-4 py-3 text-xs uppercase tracking-widest"
+          className="cursor-pointer select-none px-4 py-3 text-sm font-bold"
           style={{
-            fontFamily: "var(--font-oswald, ui-sans-serif)",
-            fontWeight: 500,
-            color: "var(--c-ink-muted, #5F6B64)",
+            fontFamily: "var(--f-body)",
+            color: "var(--c-ink, #14201A)",
             backgroundColor: "var(--c-paper-2, #EFEDE6)",
           }}
         >
           目次
         </summary>
-        <div
-          className="px-4 pb-4 pt-2"
-          style={{ backgroundColor: "var(--c-paper-2, #EFEDE6)" }}
-        >
-          <nav aria-label="目次">
-            <ol className="space-y-0.5">
-              {headings.map((h) => (
-                <li key={h.id} className={h.level === 3 ? "pl-4" : ""}>
-                  <a
-                    href={`#${h.id}`}
-                    onClick={() => setActiveId(h.id)}
-                    aria-current={activeId === h.id ? "location" : undefined}
-                    className="block py-1.5 font-sans text-xs leading-snug transition-colors"
-                    style={{
-                      color:
-                        activeId === h.id
-                          ? "var(--c-green, #0D3320)"
-                          : "var(--c-ink-muted, #5F6B64)",
-                      fontWeight: activeId === h.id ? 600 : 400,
-                    }}
-                  >
-                    {h.text}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        </div>
+        <div className="px-2 py-3">{tocList()}</div>
       </details>
     );
   }
@@ -160,26 +156,7 @@ export default function ArticleToc({ headings, variant }: Props) {
       </button>
       <div id="toc-float-panel" ref={panelRef} className="toc-float-panel" hidden={!open}>
         <p className="toc-float-label">目次</p>
-        <nav aria-label="目次">
-          <ol>
-            {headings.map((h) => (
-              <li key={h.id}>
-                <a
-                  href={`#${h.id}`}
-                  onClick={() => {
-                    // 移動直後は判定帯に見出しが入らないことがあるため、選んだ項目をその場で現在地にする
-                    setActiveId(h.id);
-                    setOpen(false);
-                  }}
-                  aria-current={activeId === h.id ? "location" : undefined}
-                  className={`toc-float-link${h.level === 3 ? " toc-float-link--sub" : ""}`}
-                >
-                  {h.text}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
+        {tocList(() => setOpen(false))}
       </div>
     </div>
   );

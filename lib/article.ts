@@ -33,10 +33,55 @@ function slugify(text: string): string {
   );
 }
 
+/** Tables with fewer columns fit a phone screen as they are. */
+const STACK_MIN_COLUMNS = 3;
+
+function escapeAttr(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/**
+ * Copies each header cell's text onto the body cells of that column as data-label,
+ * so CSS can render the table as "label | value" blocks on phones instead of scrolling sideways.
+ * Returns null (leave the table as is) when the first row is not all <th>,
+ * the table has merged cells, or it has fewer than STACK_MIN_COLUMNS columns.
+ */
+function labelTableCells(table: string): string | null {
+  if (/\s(?:colspan|rowspan)\s*=/i.test(table)) return null;
+  const firstRow = table.match(/<tr[^>]*>([\s\S]*?)<\/tr>/i);
+  if (!firstRow) return null;
+  const headerCells = Array.from(firstRow[1].matchAll(/<(th|td)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi));
+  if (
+    headerCells.length < STACK_MIN_COLUMNS ||
+    headerCells.some((c) => c[1].toLowerCase() !== "th")
+  ) {
+    return null;
+  }
+  const labels = headerCells.map((c) =>
+    c[2].replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").trim()
+  );
+
+  let rowIndex = 0;
+  return table.replace(
+    /<tr([^>]*)>([\s\S]*?)<\/tr>/gi,
+    (row: string, attrs: string, inner: string): string => {
+      if (rowIndex++ === 0) return row;
+      let column = 0;
+      const labeled = inner.replace(
+        /<td(\s[^>]*)?>/gi,
+        (_m: string, tdAttrs?: string): string =>
+          `<td data-label="${escapeAttr(labels[column++] ?? "")}"${tdAttrs ?? ""}>`
+      );
+      return `<tr${attrs}>${labeled}</tr>`;
+    }
+  );
+}
+
 /**
  * Processes raw WordPress HTML:
  *  (a) Adds unique ids to h2/h3 elements (slugified from text).
- *  (b) Wraps every <table> in <div class="table-wrap">.
+ *  (b) Wraps every <table> in <div class="table-wrap">; tables with a header row
+ *      also get data-label on each cell and the table-stack class (see labelTableCells).
  *      Note: nested tables are not supported; WordPress rarely produces them.
  *  (c) Adds rel/target attributes to affiliate and external links.
  *
@@ -67,10 +112,12 @@ export function processContent(raw: string): ProcessedContent {
   );
 
   // (b) Wrap tables -------------------------------------------------------
-  html = html.replace(
-    /<table([\s\S]*?)<\/table>/gi,
-    '<div class="table-wrap"><table$1</table></div>'
-  );
+  html = html.replace(/<table[\s\S]*?<\/table>/gi, (table: string): string => {
+    const labeled = labelTableCells(table);
+    return labeled
+      ? `<div class="table-wrap table-stack">${labeled}</div>`
+      : `<div class="table-wrap">${table}</div>`;
+  });
 
   // (c) Link attributes ---------------------------------------------------
   html = html.replace(/<a([^>]*)>/gi, (_m, attrs: string): string => {

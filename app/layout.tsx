@@ -1,34 +1,13 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import {
-  Shippori_Mincho,
-  IBM_Plex_Sans_JP,
-  IBM_Plex_Mono,
-  Oswald,
-} from "next/font/google";
+import { IBM_Plex_Mono, Oswald } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
-/* Display: Shippori Mincho — --font-display */
-const shipporiMincho = Shippori_Mincho({
-  subsets: ["latin"],
-  weight: ["700"],
-  variable: "--font-display",
-  display: "swap",
-  preload: false, // 和文フォントは数百スライスあり、全 preload はモバイルで逆効果（swap で段階表示させる）
-});
-
-/* Body: IBM Plex Sans JP — --font-body */
-const ibmPlexSansJP = IBM_Plex_Sans_JP({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-body",
-  display: "swap",
-  preload: false,
-});
+/* 和文は OS 標準の角ゴシック（globals.css の --f-sans）。Webフォントは英字用の2書体だけ読み込む */
 
 /* Utility (数字・eyebrow): Oswald — --font-utility */
 const oswald = Oswald({
@@ -80,12 +59,10 @@ const organizationJsonLd = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // --font-* は :root の --f-* から参照するため、body ではなく html に付ける
   return (
-    <html lang="ja">
-      <body
-        className={`${shipporiMincho.variable} ${ibmPlexSansJP.variable} ${oswald.variable} ${ibmPlexMono.variable}`}
-        style={{ fontFamily: "var(--f-body)" }}
-      >
+    <html lang="ja" className={`${oswald.variable} ${ibmPlexMono.variable}`}>
+      <body style={{ fontFamily: "var(--f-body)" }}>
         {/* スキップリンク */}
         <a href="#main" className="skip-link">
           本文へ

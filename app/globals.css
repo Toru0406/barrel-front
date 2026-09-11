@@ -44,10 +44,12 @@
   --t-2xl:  32px;
   --t-hero: clamp(32px, 4.5vw, 56px);
 
-  /* フォントスタック（next/font が --font-* を注入） */
-  --f-display: var(--font-display), "Shippori Mincho", serif;
-  --f-body:    var(--font-body), "IBM Plex Sans JP", sans-serif;
-  --f-utility: var(--font-utility), "Oswald", sans-serif;
+  /* フォントスタック。和文は OS 標準の角ゴシック（和文Webフォントは数百スライスあり表示が遅れる。Yahoo!ニュース・note も OS 標準書体）。
+     next/font の --font-* は <html> に付ける（<body> に付けていた間は :root でこれらの変数が無効になり、全体がブラウザ既定の書体で表示されていた） */
+  --f-sans:    -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", Meiryo, sans-serif;
+  --f-display: var(--f-sans);
+  --f-body:    var(--f-sans);
+  --f-utility: var(--font-utility), "Oswald", var(--f-sans);
   --f-mono:    var(--font-mono), "IBM Plex Mono", monospace;
 }
 
@@ -300,7 +302,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--c-ink-muted);
 }
 /* 12pxのグレーでは読みにくかったため、本文と同じ書体・本文色の14pxにし、大見出しは太字・小見出しは字下げで階層を示す */
-.toc-float-link {
+.toc-link {
   display: block;
   padding: var(--s-2) var(--s-3);
   border-left: var(--lw-3) solid transparent;
@@ -311,17 +313,17 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--c-ink);
   text-decoration: none;
 }
-.toc-float-link--sub {
+.toc-link--sub {
   padding-left: var(--s-6);
   font-weight: 400;
 }
-.toc-float-link:hover { background-color: var(--c-paper-2); }
-.toc-float-link:focus-visible {
+.toc-link:hover { background-color: var(--c-paper-2); }
+.toc-link:focus-visible {
   outline: var(--lw-3) solid var(--c-green);
   outline-offset: -3px;
 }
 /* 現在の節（選んだ項目を含む）は、色だけに頼らず左の太線と背景でも示す */
-.toc-float-link[aria-current="location"] {
+.toc-link[aria-current="location"] {
   border-left-color: var(--c-green);
   background-color: var(--c-paper-2);
   color: var(--c-green);
@@ -604,7 +606,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 767px) {
   .dek {
-    font-size: var(--t-sm);
+    font-size: var(--t-base); /* 14pxのグレーは読みにくいため本文と同じ16px（デジタル庁の本文最小サイズ）にする */
     line-height: 1.7;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -631,21 +633,62 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* 記事本文のモバイル最適化 */
+/* 記事本文のモバイル最適化。本文はデジタル庁デザインシステムの Std-16N-175（16px・行間175%・字間2%）に合わせる。
+   375px幅の実測: Yahoo!ニュース 17px/行間1.5、note 16px/行間2.0（いずれも1行約21字・OS標準の角ゴシック） */
 @media (max-width: 767px) {
-  .prose-barrel { font-size: var(--t-base); line-height: 1.85; }
-  .prose-barrel p { margin-top: 1.1em; margin-bottom: 1.1em; }
+  .prose-barrel { font-size: var(--t-base); line-height: 1.75; letter-spacing: 0.02em; }
+  .prose-barrel p { margin-top: 1.25em; margin-bottom: 1.25em; }
   .prose-barrel h2 {
     font-size: var(--t-xl);
-    line-height: 1.35;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
     word-break: auto-phrase;
     margin-top: 2em;
     padding-left: var(--s-2);
   }
-  .prose-barrel h3 { font-size: var(--t-lg); line-height: 1.4; }
-  .prose-barrel table { font-size: var(--t-xs); }
-  .prose-barrel th, .prose-barrel td { padding: var(--s-2) var(--s-3); white-space: nowrap; }
+  .prose-barrel h3 { font-size: var(--t-lg); line-height: 1.5; letter-spacing: 0.01em; }
+  .prose-barrel table { font-size: var(--t-sm); }
+  .prose-barrel th, .prose-barrel td { padding: var(--s-2) var(--s-3); min-width: 6em; }
   .prose-barrel img { margin-left: auto; margin-right: auto; }
+
+  /* 列の多い表（lib/article.ts が見出し行の文字を各セルの data-label に写したもの）は横スクロールさせず、1行＝1ブロックの「項目名｜値」に組み替える。
+     マイベストの商品スペック表と同じ組み方で、NN/g もスマホの比較表はリスト化を選択肢に挙げている */
+  .prose-barrel .table-stack { overflow: visible; }
+  .prose-barrel .table-stack table,
+  .prose-barrel .table-stack tbody,
+  .prose-barrel .table-stack tr,
+  .prose-barrel .table-stack th,
+  .prose-barrel .table-stack td { display: block; width: auto; min-width: 0; }
+  .prose-barrel .table-stack thead,
+  .prose-barrel .table-stack tr:not(:has(td)) { display: none; }
+  .prose-barrel .table-stack tr {
+    margin-bottom: var(--s-5);
+    border-top: var(--lw-3) solid var(--c-green);
+  }
+  .prose-barrel .table-stack td,
+  .prose-barrel .table-stack tr:nth-child(even) td {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--s-3);
+    padding: var(--s-2) 0;
+    background-color: transparent;
+    font-size: var(--t-base);
+    line-height: 1.6;
+  }
+  .prose-barrel .table-stack td::before {
+    content: attr(data-label);
+    font-size: var(--t-sm);
+    color: var(--c-ink-muted);
+  }
+  /* 1列目（商品名など行の見出し）はラベルを付けず、そのブロックの見出しにする */
+  .prose-barrel .table-stack td:first-child,
+  .prose-barrel .table-stack tr:nth-child(even) td:first-child {
+    display: block;
+    padding: var(--s-3) 0;
+    font-size: var(--t-lg);
+    font-weight: 700;
+  }
+  .prose-barrel .table-stack td:first-child::before { content: none; }
 }
 
 /* 見出し・タイトル全般: 長い英数字（p<0.01、URL）で横にはみ出さない */

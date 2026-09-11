@@ -23,7 +23,7 @@ export default function KeyPoints({ data }: Props) {
       <p
         className="text-xs uppercase tracking-widest mb-3"
         style={{
-          fontFamily: "var(--font-oswald, ui-sans-serif)",
+          fontFamily: "var(--f-utility)",
           fontWeight: 500,
           color: "var(--c-ink-muted, #5F6B64)",
           letterSpacing: "0.12em",
@@ -35,7 +35,7 @@ export default function KeyPoints({ data }: Props) {
         {data.items.map((item, i) => (
           <li
             key={i}
-            className="font-sans text-sm leading-relaxed"
+            className="text-base leading-relaxed"
             style={{ color: "var(--c-ink, #14201A)" }}
           >
             {item}
@@ -45,7 +45,7 @@ export default function KeyPoints({ data }: Props) {
       {data.firstHeadingId && (
         <a
           href={`#${data.firstHeadingId}`}
-          className="font-sans text-xs border-b transition-opacity hover:opacity-70"
+          className="text-sm border-b transition-opacity hover:opacity-70"
           style={{
             color: "var(--c-green, #0D3320)",
             borderColor: "var(--c-green, #0D3320)",
