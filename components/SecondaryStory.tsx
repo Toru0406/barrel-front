@@ -9,16 +9,19 @@ import {
 } from "@/lib/wordpress";
 import Eyebrow from "./Eyebrow";
 import EvidenceBadge from "./EvidenceBadge";
+import TrendingBadge from "./TrendingBadge";
 
 interface Props {
   post: WPPost;
+  /** GA4 のPV上位に入っている記事に「よく読まれている」印を出す */
+  trending?: boolean;
 }
 
 /**
  * サブストーリー: 左に小画像、右にタイトル。
  * LeadStory の横に 2本並べるレイアウト向け。
  */
-export default function SecondaryStory({ post }: Props) {
+export default function SecondaryStory({ post, trending = false }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
@@ -50,9 +53,10 @@ export default function SecondaryStory({ post }: Props) {
 
         {/* 右: テキスト */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-s-2 mb-1">
+          <div className="flex flex-wrap items-center gap-x-s-2 gap-y-s-1 mb-1">
             {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
             <EvidenceBadge count={count} />
+            <TrendingBadge trending={trending} />
           </div>
           <h2
             className="line-clamp-3"

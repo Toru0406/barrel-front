@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { searchPosts, WPPost } from "@/lib/wordpress";
 import { HUBS } from "@/lib/hubs";
+import { getTrendingSlugSet } from "@/lib/ga4";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ArticleListItem from "@/components/ArticleListItem";
 import SectionHeading from "@/components/SectionHeading";
@@ -33,6 +34,11 @@ export default async function SearchPage({ searchParams }: Props) {
   let totalPages = 1;
   let total = 0;
   let fetchError = false;
+
+  // 検索語があるときだけランキングを引く（結果は1時間の共有キャッシュ）
+  const trendingSlugs = q
+    ? await getTrendingSlugSet().catch(() => new Set<string>())
+    : new Set<string>();
 
   if (q) {
     try {
@@ -214,7 +220,12 @@ export default async function SearchPage({ searchParams }: Props) {
               title={`「${q}」の検索結果 (${total}件)`}
             />
             {posts.map((post) => (
-              <ArticleListItem key={post.id} post={post} showThumbnail={false} />
+              <ArticleListItem
+                key={post.id}
+                post={post}
+                showThumbnail={false}
+                trending={trendingSlugs.has(post.slug)}
+              />
             ))}
             <Pagination
               currentPage={page}

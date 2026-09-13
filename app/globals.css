@@ -114,6 +114,20 @@ h1, h2, h3, h4, h5, h6 {
     white-space: nowrap;
   }
 
+  /* よく読まれている印（Oswald 大文字、緑の3px左罫）。
+     枠を持たせないことで、枠付きの出典バッジ（Signature）より従属させる。 */
+  .trending-badge {
+    font-family: var(--f-utility);
+    font-size: var(--t-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--c-ink-muted);
+    border-left: var(--lw-3) solid var(--c-green);
+    padding-left: var(--s-2);
+    white-space: nowrap;
+  }
+
   /* CTAボタン（ベージュ背景、緑文字、角丸なし） */
   .btn-cta {
     display: inline-block;

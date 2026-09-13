@@ -1,7 +1,16 @@
 import { JWT } from "google-auth-library";
+import { unstable_cache } from "next/cache";
 
 // GA4 Data API から人気記事（/articles/<slug>）のPV順スラッグを取得する。
 // 失敗時は空配列を返し、呼び出し側で最新記事にフォールバックする。
+// PVの実数は外に出さない（順位だけを使う）。少ない実数の露出は
+// 負の社会的証明になり、記事カードの Signature（出典N件）も薄めるため。
+
+/** 「よく読まれている」印を付ける上位本数。増やすと印が薄まるので少なく保つ。 */
+export const TRENDING_COUNT = 5;
+
+/** 日次 cron（app/api/cron/popular）からランキングキャッシュを破棄するためのタグ。 */
+export const GA4_POPULAR_TAG = "ga4-popular";
 
 const PROPERTY_ID = process.env.GA4_PROPERTY_ID;
 const SA_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -33,7 +42,8 @@ function slugFromLegacyPath(path: string): string | null {
   return seg;
 }
 
-async function fetchPopularSlugsUncached(limit: number): Promise<string[]> {
+/** PV降順のスラッグ全件。上限の絞り込みは呼び出し側で行う。 */
+async function fetchRankingUncached(): Promise<string[]> {
   if (!PROPERTY_ID || !SA_EMAIL || !SA_KEY) return [];
   const token = await accessToken();
   const res = await fetch(
@@ -78,16 +88,30 @@ async function fetchPopularSlugsUncached(limit: number): Promise<string[]> {
 
   return Array.from(score.entries())
     .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
     .map(([slug]) => slug);
 }
 
-// ページ側のISR（revalidate=60）でキャッシュされるため、ここでは直接取得する。
+// ランキングは全ページ（ホーム・カテゴリ・ハブ・検索）から参照するため、
+// ページ側のISRとは別に1時間の共有キャッシュを噛ませて GA4 の呼び出しを1本にまとめる。
 // 失敗時は空配列 → 呼び出し側で最新記事にフォールバック。
+const getRanking = unstable_cache(
+  async (): Promise<string[]> => {
+    try {
+      return await fetchRankingUncached();
+    } catch {
+      return [];
+    }
+  },
+  ["ga4-popular-ranking"],
+  { revalidate: 3600, tags: [GA4_POPULAR_TAG] }
+);
+
+/** ホームの「よく読まれている」レール用。PV降順のスラッグ。 */
 export async function getPopularSlugs(limit = 8): Promise<string[]> {
-  try {
-    return await fetchPopularSlugsUncached(limit);
-  } catch {
-    return [];
-  }
+  return (await getRanking()).slice(0, limit);
+}
+
+/** 記事カードに「よく読まれている」印を出すかの判定用スラッグ集合。 */
+export async function getTrendingSlugSet(limit = TRENDING_COUNT): Promise<Set<string>> {
+  return new Set((await getRanking()).slice(0, limit));
 }

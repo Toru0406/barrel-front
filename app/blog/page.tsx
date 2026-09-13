@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getPosts, WPPost } from "@/lib/wordpress";
+import { getTrendingSlugSet } from "@/lib/ga4";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ArticleListItem from "@/components/ArticleListItem";
 import SectionHeading from "@/components/SectionHeading";
@@ -17,6 +18,7 @@ interface Props {
 
 export default async function BlogPage({ searchParams }: Props) {
   const page = Math.max(1, Number(searchParams.page ?? 1));
+  const trendingSlugs = await getTrendingSlugSet().catch(() => new Set<string>());
 
   let posts: WPPost[] = [];
   let totalPages = 1;
@@ -79,7 +81,12 @@ export default async function BlogPage({ searchParams }: Props) {
               title={`全 ${total} 件`}
             />
             {posts.map((post) => (
-              <ArticleListItem key={post.id} post={post} showThumbnail={false} />
+              <ArticleListItem
+                key={post.id}
+                post={post}
+                showThumbnail={false}
+                trending={trendingSlugs.has(post.slug)}
+              />
             ))}
             <Pagination
               currentPage={page}

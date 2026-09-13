@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HUBS, hubById } from "@/lib/hubs";
 import { getPostsByCategoryIds, WPPost } from "@/lib/wordpress";
+import { getTrendingSlugSet } from "@/lib/ga4";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ArticleListItem from "@/components/ArticleListItem";
 import LeadStory from "@/components/LeadStory";
@@ -39,6 +40,7 @@ export default async function HubPage({ params, searchParams }: Props) {
   if (!hub) notFound();
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
+  const trendingSlugs = await getTrendingSlugSet().catch(() => new Set<string>());
 
   let posts: WPPost[] = [];
   let totalPages = 1;
@@ -107,7 +109,7 @@ export default async function HubPage({ params, searchParams }: Props) {
             {/* ページ1: リード記事 */}
             {leadPost && (
               <div className="mb-s-8">
-                <LeadStory post={leadPost} />
+                <LeadStory post={leadPost} trending={trendingSlugs.has(leadPost.slug)} />
               </div>
             )}
 
@@ -116,7 +118,12 @@ export default async function HubPage({ params, searchParams }: Props) {
               <div className="mb-s-6">
                 <SectionHeading title={page === 1 ? "記事一覧" : hub.label} />
                 {listPosts.map((post) => (
-                  <ArticleListItem key={post.id} post={post} showThumbnail={false} />
+                  <ArticleListItem
+                    key={post.id}
+                    post={post}
+                    showThumbnail={false}
+                    trending={trendingSlugs.has(post.slug)}
+                  />
                 ))}
               </div>
             )}

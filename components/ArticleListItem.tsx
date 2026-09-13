@@ -3,18 +3,21 @@ import Image from "next/image";
 import { WPPost, getFeaturedImage, getPostCategories, formatDateDot, evidenceCount } from "@/lib/wordpress";
 import Eyebrow from "./Eyebrow";
 import EvidenceBadge from "./EvidenceBadge";
+import TrendingBadge from "./TrendingBadge";
 
 interface Props {
   post: WPPost;
   showThumbnail?: boolean;
+  /** GA4 のPV上位に入っている記事に「よく読まれている」印を出す */
+  trending?: boolean;
 }
 
 /**
  * テキスト密度の高いリスト行。
- * eyebrow カテゴリ · display フォントタイトル · mono 日付 · 出典バッジ
+ * eyebrow カテゴリ · display フォントタイトル · mono 日付 · 出典バッジ · 人気印
  * サムネイルは optional（右側 96px 固定）。
  */
-export default function ArticleListItem({ post, showThumbnail = true }: Props) {
+export default function ArticleListItem({ post, showThumbnail = true, trending = false }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
@@ -29,11 +32,12 @@ export default function ArticleListItem({ post, showThumbnail = true }: Props) {
       >
         {/* テキスト部 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-s-3 mb-1">
+          <div className="flex flex-wrap items-center gap-x-s-3 gap-y-s-1 mb-1">
             {firstCat && (
               <Eyebrow>{firstCat.name}</Eyebrow>
             )}
             <EvidenceBadge count={count} />
+            <TrendingBadge trending={trending} />
           </div>
           <h2
             className="line-clamp-3 leading-snug"

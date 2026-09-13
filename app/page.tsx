@@ -5,7 +5,7 @@ import {
   getPostsByCategoryIds,
   WPPost,
 } from "@/lib/wordpress";
-import { getPopularSlugs } from "@/lib/ga4";
+import { getPopularSlugs, getTrendingSlugSet } from "@/lib/ga4";
 import { HUBS } from "@/lib/hubs";
 import LeadStory from "@/components/LeadStory";
 import SecondaryStory from "@/components/SecondaryStory";
@@ -18,9 +18,10 @@ export const revalidate = 300;
 
 export default async function HomePage() {
   /* ---------- データ取得 ---------- */
-  const [latestResult, popularSlugs] = await Promise.all([
+  const [latestResult, popularSlugs, trendingSlugs] = await Promise.all([
     getPosts({ perPage: 20 }).catch(() => ({ posts: [] as WPPost[], total: 0, totalPages: 0 })),
     getPopularSlugs(8).catch(() => [] as string[]),
+    getTrendingSlugSet().catch(() => new Set<string>()),
   ]);
   const latestPosts = latestResult.posts;
 
@@ -68,7 +69,7 @@ export default async function HomePage() {
             {/* Lead: 7 col */}
             <div className="col-span-12 lg:col-span-7">
               {lead ? (
-                <LeadStory post={lead} />
+                <LeadStory post={lead} trending={trendingSlugs.has(lead.slug)} />
               ) : (
                 <p style={{ color: "var(--c-ink-muted)" }}>記事を取得できませんでした</p>
               )}
@@ -79,19 +80,19 @@ export default async function HomePage() {
               className="hidden lg:flex lg:col-span-5 flex-col gap-s-5"
               style={{ borderLeft: "1px solid var(--c-line)", paddingLeft: "var(--s-6)" }}
             >
-              {sub1 && <SecondaryStory post={sub1} />}
-              {sub2 && <SecondaryStory post={sub2} />}
+              {sub1 && <SecondaryStory post={sub1} trending={trendingSlugs.has(sub1.slug)} />}
+              {sub2 && <SecondaryStory post={sub2} trending={trendingSlugs.has(sub2.slug)} />}
             </div>
 
             {/* モバイル: Secondaryを縦並び表示 */}
             {sub1 && (
               <div className="col-span-12 lg:hidden" style={{ borderTop: "1px solid var(--c-line)", paddingTop: "var(--s-5)" }}>
-                <SecondaryStory post={sub1} />
+                <SecondaryStory post={sub1} trending={trendingSlugs.has(sub1.slug)} />
               </div>
             )}
             {sub2 && (
               <div className="col-span-12 lg:hidden">
-                <SecondaryStory post={sub2} />
+                <SecondaryStory post={sub2} trending={trendingSlugs.has(sub2.slug)} />
               </div>
             )}
           </div>
@@ -116,7 +117,12 @@ export default async function HomePage() {
               />
               {latestList.length > 0 ? (
                 latestList.map((post) => (
-                  <ArticleListItem key={post.id} post={post} showThumbnail />
+                  <ArticleListItem
+                    key={post.id}
+                    post={post}
+                    showThumbnail
+                    trending={trendingSlugs.has(post.slug)}
+                  />
                 ))
               ) : (
                 <p style={{ color: "var(--c-ink-muted)", fontFamily: "var(--f-body)" }}>

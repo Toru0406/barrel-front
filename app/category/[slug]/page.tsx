@@ -8,6 +8,7 @@ import {
   WPPost,
 } from "@/lib/wordpress";
 import { hubForCategorySlug } from "@/lib/hubs";
+import { getTrendingSlugSet } from "@/lib/ga4";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ArticleListItem from "@/components/ArticleListItem";
 import SectionHeading from "@/components/SectionHeading";
@@ -45,6 +46,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!category) notFound();
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
+  const trendingSlugs = await getTrendingSlugSet().catch(() => new Set<string>());
   let posts: WPPost[] = [];
   let totalPages = 1;
 
@@ -155,7 +157,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               title={`${category.name}の記事 (${category.count}件)`}
             />
             {posts.map((post) => (
-              <ArticleListItem key={post.id} post={post} showThumbnail={false} />
+              <ArticleListItem
+                key={post.id}
+                post={post}
+                showThumbnail={false}
+                trending={trendingSlugs.has(post.slug)}
+              />
             ))}
             <Pagination
               currentPage={page}

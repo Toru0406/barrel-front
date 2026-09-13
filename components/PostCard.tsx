@@ -8,12 +8,15 @@ import {
   evidenceCount,
 } from "@/lib/wordpress";
 import EvidenceBadge from "./EvidenceBadge";
+import TrendingBadge from "./TrendingBadge";
 
 interface Props {
   post: WPPost;
+  /** GA4 のPV上位に入っている記事に「よく読まれている」印を出す */
+  trending?: boolean;
 }
 
-export default function PostCard({ post }: Props) {
+export default function PostCard({ post, trending = false }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
@@ -44,12 +47,13 @@ export default function PostCard({ post }: Props) {
 
         {/* カード本文 */}
         <div className="p-s-4">
-          <div className="flex items-center gap-s-2 mb-s-2">
+          <div className="flex flex-wrap items-center gap-x-s-2 gap-y-s-1 mb-s-2">
             {firstCat && (
               /* badge クラスは app/blog/[slug]/page.tsx との互換のため保持 */
               <span className="badge">{firstCat.name}</span>
             )}
             <EvidenceBadge count={count} />
+            <TrendingBadge trending={trending} />
           </div>
 
           <h2

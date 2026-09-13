@@ -11,16 +11,19 @@ import {
 } from "@/lib/wordpress";
 import Eyebrow from "./Eyebrow";
 import EvidenceBadge from "./EvidenceBadge";
+import TrendingBadge from "./TrendingBadge";
 
 interface Props {
   post: WPPost;
+  /** GA4 のPV上位に入っている記事に「よく読まれている」印を出す */
+  trending?: boolean;
 }
 
 /**
  * リードストーリー: 16:9 大画像 + eyebrow + hero タイトル + リード段落 + メタ。
  * eyebrow → 見出し → 要約の順に .rise アニメーション（--i で 60ms 刻み）。
  */
-export default function LeadStory({ post }: Props) {
+export default function LeadStory({ post, trending = false }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
@@ -52,9 +55,10 @@ export default function LeadStory({ post }: Props) {
         {/* テキストエリア */}
         <div className="pt-s-4">
           {/* eyebrow: --i:0 */}
-          <div className="rise flex items-center gap-s-3 mb-s-2" style={{ "--i": 0 } as React.CSSProperties}>
+          <div className="rise flex flex-wrap items-center gap-x-s-3 gap-y-s-1 mb-s-2" style={{ "--i": 0 } as React.CSSProperties}>
             {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
             <EvidenceBadge count={count} />
+            <TrendingBadge trending={trending} />
           </div>
 
           {/* hero タイトル: --i:1 */}
