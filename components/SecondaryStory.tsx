@@ -6,10 +6,12 @@ import {
   getPostCategories,
   formatDateDot,
   evidenceCount,
+  isSponsored,
 } from "@/lib/wordpress";
 import Eyebrow from "./Eyebrow";
 import EvidenceBadge from "./EvidenceBadge";
 import TrendingBadge from "./TrendingBadge";
+import PrBadge from "./PrBadge";
 
 interface Props {
   post: WPPost;
@@ -26,6 +28,7 @@ export default function SecondaryStory({ post, trending = false }: Props) {
   const categories = getPostCategories(post);
   const firstCat = categories[0];
   const count = evidenceCount(post);
+  const sponsored = isSponsored(post);
 
   return (
     <article>
@@ -54,6 +57,7 @@ export default function SecondaryStory({ post, trending = false }: Props) {
         {/* 右: テキスト */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-x-s-2 gap-y-s-1 mb-1">
+            <PrBadge sponsored={sponsored} />
             {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
             <EvidenceBadge count={count} />
             <TrendingBadge trending={trending} />

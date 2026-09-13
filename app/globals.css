@@ -114,6 +114,26 @@ h1, h2, h3, h4, h5, h6 {
     white-space: nowrap;
   }
 
+  /* PR表記（一覧カード）。記事を開く前に広告記事だと分かるようにするための情報。
+     出典バッジと同じ矩形に揃えつつ、文字色は本文と同じ濃さにして視認性を確保する。 */
+  .pr-badge {
+    font-family: var(--f-utility);
+    font-size: var(--t-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--c-ink);
+    border: var(--lw-1) solid var(--c-ink-muted);
+    border-radius: var(--r-1);
+    padding: 1px var(--s-2);
+    white-space: nowrap;
+  }
+  /* 緑帯の上（テーマ別セクション）ではベージュで同じ矩形を描く */
+  .pr-badge--band {
+    color: var(--c-beige);
+    border-color: var(--c-beige);
+  }
+
   /* よく読まれている印（Oswald 大文字、緑の3px左罫）。
      枠を持たせないことで、枠付きの出典バッジ（Signature）より従属させる。 */
   .trending-badge {

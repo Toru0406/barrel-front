@@ -6,9 +6,11 @@ import {
   getPostCategories,
   formatDateDot,
   evidenceCount,
+  isSponsored,
 } from "@/lib/wordpress";
 import EvidenceBadge from "./EvidenceBadge";
 import TrendingBadge from "./TrendingBadge";
+import PrBadge from "./PrBadge";
 
 interface Props {
   post: WPPost;
@@ -21,6 +23,7 @@ export default function PostCard({ post, trending = false }: Props) {
   const categories = getPostCategories(post);
   const firstCat = categories[0];
   const count = evidenceCount(post);
+  const sponsored = isSponsored(post);
 
   return (
     <article
@@ -48,6 +51,7 @@ export default function PostCard({ post, trending = false }: Props) {
         {/* カード本文 */}
         <div className="p-s-4">
           <div className="flex flex-wrap items-center gap-x-s-2 gap-y-s-1 mb-s-2">
+            <PrBadge sponsored={sponsored} />
             {firstCat && (
               /* badge クラスは app/blog/[slug]/page.tsx との互換のため保持 */
               <span className="badge">{firstCat.name}</span>

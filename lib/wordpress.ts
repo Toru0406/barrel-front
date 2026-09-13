@@ -135,6 +135,24 @@ export function getModifiedDate(post: WPPost): string {
 }
 
 /**
+ * PR（広告・アフィリエイトを含む）記事かを本文から判定する。
+ * カード一覧で記事を開く前にPRと分かるようにするための判定で、以下のいずれかで真。
+ *  1. 本文冒頭のPR表記段落 <p class="barrel-pr">（記事側の明示。lib/article.ts が読み飛ばす要素）
+ *  2. アフィリエイトリンク（af.moshimo.com / amazon.co.jp）。lib/article.ts が rel="sponsored" を付ける条件と同じ
+ *  3. 商品ボックス（.barrel-picks / .barrel-product。theme-engine の productBox.ts が生成する購入導線）
+ * 判定は「迷ったら付ける」側に倒す。表示漏れの方がコストが高いため。
+ */
+export function isSponsored(post: WPPost): boolean {
+  const html = post.content?.rendered ?? "";
+  return (
+    /<p[^>]*class=["'][^"']*barrel-pr[^"']*["']/i.test(html) ||
+    /href=["'][^"']*af\.moshimo\.com/i.test(html) ||
+    /href=["']https?:\/\/(?:www\.)?amazon\.co\.jp\//i.test(html) ||
+    /class=["'][^"']*barrel-(?:picks|product)[^"']*["']/i.test(html)
+  );
+}
+
+/**
  * 参考文献の外部リンク数を出典数として返す。
  * 「参考文献」を含む h2/h3 以降の <a href> を数える。
  * 該当セクションがなければ本文全体の外部リンク数（http:// or https://）を数える。

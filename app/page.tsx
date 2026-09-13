@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  isSponsored,
   getPosts,
   getPostBySlug,
   getPostsByCategoryIds,
@@ -13,6 +14,7 @@ import ArticleListItem from "@/components/ArticleListItem";
 import SectionHeading from "@/components/SectionHeading";
 import LineCta from "@/components/LineCta";
 import Eyebrow from "@/components/Eyebrow";
+import PrBadge from "@/components/PrBadge";
 
 export const revalidate = 300;
 
@@ -164,18 +166,23 @@ export default async function HomePage() {
                         >
                           {i + 1}
                         </span>
-                        <span
-                          className="line-clamp-3"
-                          style={{
-                            fontFamily: "var(--f-display)",
-                            fontSize: "var(--t-sm)",
-                            fontWeight: 700,
-                            color: "var(--c-ink)",
-                            lineHeight: 1.5,
-                            letterSpacing: "0.02em",
-                          }}
-                          dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                        />
+                        <span className="flex-1 min-w-0">
+                          <span
+                            className="line-clamp-3 block"
+                            style={{
+                              fontFamily: "var(--f-display)",
+                              fontSize: "var(--t-sm)",
+                              fontWeight: 700,
+                              color: "var(--c-ink)",
+                              lineHeight: 1.5,
+                              letterSpacing: "0.02em",
+                            }}
+                            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+                          />
+                          {isSponsored(post) && (
+                            <PrBadge sponsored className="mt-1 inline-block" />
+                          )}
+                        </span>
                       </Link>
                     </li>
                   ))}
@@ -254,15 +261,22 @@ export default async function HomePage() {
                       >
                         <Link
                           href={`/articles/${post.slug}`}
-                          className="block line-clamp-2 transition-opacity hover:opacity-80"
+                          className="block transition-opacity hover:opacity-80"
                           style={{
                             fontFamily: "var(--f-body)",
                             fontSize: "var(--t-xs)",
                             color: "rgba(232,213,176,0.9)",
                             lineHeight: 1.5,
                           }}
-                          dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                        />
+                        >
+                          <span
+                            className="line-clamp-2 block"
+                            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+                          />
+                          {isSponsored(post) && (
+                            <PrBadge sponsored tone="band" className="mt-1 inline-block" />
+                          )}
+                        </Link>
                       </li>
                     ))}
                   </ul>

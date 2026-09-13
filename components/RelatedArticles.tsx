@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getFeaturedImage, formatDateDot } from "@/lib/wordpress";
+import { getFeaturedImage, formatDateDot, isSponsored } from "@/lib/wordpress";
+import PrBadge from "./PrBadge";
 import type { WPPost } from "@/lib/wordpress";
 
 interface Props {
@@ -60,13 +61,16 @@ export default function RelatedArticles({ posts }: Props) {
                 >
                   {title}
                 </p>
-                <time
-                  className="font-mono text-xs mt-1 block"
-                  style={{ color: "var(--c-ink-muted, #5F6B64)" }}
-                  dateTime={post.date}
-                >
-                  {formatDateDot(post.date)}
-                </time>
+                <div className="flex flex-wrap items-center gap-x-s-3 gap-y-s-1 mt-1">
+                  <time
+                    className="font-mono text-xs"
+                    style={{ color: "var(--c-ink-muted, #5F6B64)" }}
+                    dateTime={post.date}
+                  >
+                    {formatDateDot(post.date)}
+                  </time>
+                  <PrBadge sponsored={isSponsored(post)} />
+                </div>
               </div>
             </Link>
           );
