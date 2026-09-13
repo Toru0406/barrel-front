@@ -2,12 +2,25 @@ import { JWT } from "google-auth-library";
 import { unstable_cache } from "next/cache";
 
 // GA4 Data API から人気記事（/articles/<slug>）のPV順スラッグを取得する。
+// 集計窓は28日。90日だと初期の当たり記事が上位を占め続け、人気レールも人気印も
+// 同じ数本に固定される。28日にすることで新しい記事・PR/アフィリエイト記事にも
+// 順位が回り、回遊先が分散する。
 // 失敗時は空配列を返し、呼び出し側で最新記事にフォールバックする。
 // PVの実数は外に出さない（順位だけを使う）。少ない実数の露出は
 // 負の社会的証明になり、記事カードの Signature（出典N件）も薄めるため。
 
+/** 集計窓（日）。短いほど順位が入れ替わり、長いほど安定する。 */
+export const TRENDING_WINDOW_DAYS = 28;
+
 /** 「よく読まれている」印を付ける上位本数。増やすと印が薄まるので少なく保つ。 */
 export const TRENDING_COUNT = 5;
+
+/**
+ * 印を出すために必要な、窓内でPVがある記事の最低本数。
+ * 窓を28日に縮めるとランキングに乗る記事が減り、下回ると「ほぼ全記事にMOST READ」
+ * になって印が情報として機能しないため、そのときは一律で出さない。
+ */
+export const TRENDING_MIN_POOL = TRENDING_COUNT * 2;
 
 /** 日次 cron（app/api/cron/popular）からランキングキャッシュを破棄するためのタグ。 */
 export const GA4_POPULAR_TAG = "ga4-popular";
@@ -55,7 +68,7 @@ async function fetchRankingUncached(): Promise<string[]> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        dateRanges: [{ startDate: "90daysAgo", endDate: "today" }],
+        dateRanges: [{ startDate: `${TRENDING_WINDOW_DAYS}daysAgo`, endDate: "today" }],
         dimensions: [{ name: "pagePath" }],
         metrics: [{ name: "screenPageViews" }],
         orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
@@ -111,7 +124,12 @@ export async function getPopularSlugs(limit = 8): Promise<string[]> {
   return (await getRanking()).slice(0, limit);
 }
 
-/** 記事カードに「よく読まれている」印を出すかの判定用スラッグ集合。 */
+/**
+ * 記事カードに「よく読まれている」印を出すかの判定用スラッグ集合。
+ * カテゴリやPR/アフィリエイトの別で除外はしない（PVの多寡だけで決める）。
+ */
 export async function getTrendingSlugSet(limit = TRENDING_COUNT): Promise<Set<string>> {
-  return new Set((await getRanking()).slice(0, limit));
+  const ranking = await getRanking();
+  if (ranking.length < TRENDING_MIN_POOL) return new Set<string>();
+  return new Set(ranking.slice(0, limit));
 }
