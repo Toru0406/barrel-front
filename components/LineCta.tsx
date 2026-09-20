@@ -3,6 +3,10 @@ import QRCode from "qrcode";
 /**
  * LINE 購読 CTA 帯。NEXT_PUBLIC_LINE_ADD_URL 未設定時は何も描画しない。
  *
+ * 文面は「週1回配信します」ではなく「送れば答えが返る」に寄せてある。無料プランの配信は
+ * 月200通で、通数は「配信回数 × 友だち数」で減るため、友だちが50人を超えると週1配信は成立しない。
+ * 一方、応答メッセージ（/api/line/webhook）は通数を消費しないので、友だちが何人になっても約束を守れる。
+ *
  * PC のブラウザで lin.ee / line.me の友だち追加URLを開くと、LINE 側が「LINEアプリを開く」ボタン付きの
  * 中継ページを出すが、これは LINE for PC が入っていて protocol handler が許可された環境でしか遷移しない
  * （仕様上、PC から直接友だち追加はできない）。そのため PC には自前の QR コードを見せ、
@@ -39,13 +43,14 @@ export default async function LineCta() {
               color: "var(--c-ink)",
             }}
           >
-            新着記事と研究の要点をLINEで
+            LINEで相談すると、研究から答えます
           </h2>
           <p
             className="mb-s-4"
             style={{ fontFamily: "var(--f-body)", fontSize: "var(--t-sm)", color: "var(--c-ink-muted)", lineHeight: 1.7 }}
           >
-            週1回、指導と身体づくりに使える要点だけを届けます。
+            「肘が痛いと言っている」「成長期の筋トレは大丈夫？」——
+            気になることを送ると、論文にあたって書いた記事をお返しします。新着もときどき届きます。
             <span className="hidden md:inline">PCの方はQRコードをスマホのLINEで読み取ってください。</span>
           </p>
           {/* スマホでは同じタブで遷移させる（別タブだと iOS でアプリ連携が切れることがある） */}
