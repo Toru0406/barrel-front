@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {
-  verifySignature, pickArticles, buildReply, welcomeMessages,
+  verifySignature, pickArticles, buildReply,
   isHelpRequest, helpMessages, reply, type LineEvent,
 } from "@/lib/line";
 
@@ -37,10 +37,9 @@ export async function POST(request: Request) {
   for (const event of events) {
     if (!event.replyToken) continue;
     try {
-      if (event.type === "follow") {
-        await reply(event.replyToken, welcomeMessages(), accessToken);
-        handled++;
-      } else if (event.type === "message" && event.message?.type === "text") {
+      // follow（友だち追加・ブロック解除）には応答しない。あいさつは LINE Official Account Manager の
+      // あいさつメッセージが送るので、ここでも返すと新規の友だちに二重で届く
+      if (event.type === "message" && event.message?.type === "text") {
         const text = (event.message.text ?? "").trim();
         if (!text) continue;
         // リッチメニューの「使い方」ボタンはこの語を送ってくる。記事検索にかけても意味がない

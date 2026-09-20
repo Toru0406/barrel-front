@@ -155,25 +155,15 @@ export function isHelpRequest(text: string): boolean {
   return /^(使い方|ヘルプ|help|つかいかた|このアカウント)/i.test(text.trim());
 }
 
-/** 使い方の説明。あいさつの2通目以降と同じ内容を返す */
-export function helpMessages(): Message[] {
-  return welcomeMessages().slice(1);
-}
-
 /**
- * 友だち追加・ブロック解除時の最初の応答。応答メッセージなので通数を消費しない。
+ * 「使い方」への応答。応答メッセージなので通数を消費しない。
  *
- * 2〜3通目は LINE Official Account Manager のあいさつメッセージに登録した文面と
- * 同じにしてある（リッチメニューの「使い方」からも同じ内容が返るようにするため）。
- * 管理画面側の文面を直したら、ここも合わせること。
+ * 文面は LINE Official Account Manager のあいさつメッセージに登録したものと同じにしてある。
+ * 友だち追加時のあいさつは管理画面側が送るので、こちらは follow イベントに応答しない
+ * （両方が送ると新規の友だちに二重で届く）。管理画面の文面を直したら、ここも合わせること。
  */
-export function welcomeMessages(): Message[] {
+export function helpMessages(): Message[] {
   return [
-    textMessage(
-      "BARRELです。友だち追加ありがとうございます。\n\n" +
-      "スポーツ科学の論文を読み込んで、指導者・選手・保護者が現場で使える形に落とした記事を書いています。\n" +
-      SITE
-    ),
     textMessage(
       "使い方はかんたんです。\n" +
       "困っていることをそのまま送ってください。近いテーマの記事をお返しします🚩\n" +
