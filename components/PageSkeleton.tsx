@@ -1,9 +1,13 @@
 /**
- * ルートローディングUI — App Router が Suspense 境界で使用する。
+ * 一覧系ページのローディングスケルトン。
  * レイアウトシフトを防ぐため、実際のコンテンツと高さが近いスケルトンを用意する。
  * アニメーションは CSS pulse のみ（JS なし）。
+ *
+ * app/loading.tsx としてルート全体に置くと、記事・ハブ・カテゴリの notFound() より先に
+ * ストリーミングで 200 が確定してしまい、存在しないURLが soft 404 になる（2026-09-20 実測）。
+ * そのため notFound() を使わない /blog と /search にだけ Suspense 境界を置く。
  */
-export default function Loading() {
+export default function PageSkeleton() {
   return (
     <div
       aria-label="読み込み中"
