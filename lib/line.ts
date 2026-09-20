@@ -150,6 +150,16 @@ export function textMessage(text: string, withQuickReply = false): Message {
   return msg;
 }
 
+/** リッチメニューの「使い方」やヘルプ的な問いかけ。記事検索にかけても意味がないので先に拾う */
+export function isHelpRequest(text: string): boolean {
+  return /^(使い方|ヘルプ|help|つかいかた|このアカウント)/i.test(text.trim());
+}
+
+/** 使い方の説明。welcome の2通目と同じ内容を単体で返す */
+export function helpMessages(): Message[] {
+  return [welcomeMessages()[1]];
+}
+
 /** 友だち追加・ブロック解除時の最初の応答。応答メッセージなので通数を消費しない */
 export function welcomeMessages(): Message[] {
   return [

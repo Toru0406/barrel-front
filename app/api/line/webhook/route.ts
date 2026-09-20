@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { verifySignature, pickArticles, buildReply, welcomeMessages, reply, type LineEvent } from "@/lib/line";
+import {
+  verifySignature, pickArticles, buildReply, welcomeMessages,
+  isHelpRequest, helpMessages, reply, type LineEvent,
+} from "@/lib/line";
 
 // LINE公式アカウントのWebhook。ユーザーの発話に「応答メッセージ」で返す。
 // 応答は料金プランの通数にカウントされないため、無料プラン（月200通）でも無制限に使える。
@@ -40,8 +43,9 @@ export async function POST(request: Request) {
       } else if (event.type === "message" && event.message?.type === "text") {
         const text = (event.message.text ?? "").trim();
         if (!text) continue;
-        const posts = await pickArticles(text);
-        await reply(event.replyToken, buildReply(posts), accessToken);
+        // リッチメニューの「使い方」ボタンはこの語を送ってくる。記事検索にかけても意味がない
+        const messages = isHelpRequest(text) ? helpMessages() : buildReply(await pickArticles(text));
+        await reply(event.replyToken, messages, accessToken);
         handled++;
       }
     } catch (e) {
