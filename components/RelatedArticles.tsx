@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * 関連記事 (同じハブ/カテゴリから最大3件)。
+ * 関連記事（同じカテゴリから最大6件）。
  * ArticleListItem が未着のため、ここで直接レンダリングする。
  * TODO: foundation builder が ArticleListItem を納品したら置き換える。
  */

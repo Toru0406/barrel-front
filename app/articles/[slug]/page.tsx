@@ -127,8 +127,19 @@ export default async function ArticlePage({ params }: Props) {
   const keyPoints = extractKeyPoints(post.content.rendered, processed.headings);
 
   // Related posts from the same category
-  const relatedPosts = await getPostsByCategoryIds(post.categories, { perPage: 4 })
-    .then((r) => r.posts.filter((p) => p.id !== post.id).slice(0, 3))
+  // 同カテゴリの新着4本から3本を出す形だと、カテゴリ内の古い記事には内部リンクが1本も付かない。
+  // 2026-09-20 時点で記事間リンクは全記事3本固定で、被リンクの薄い記事がそのまま Google 未登録
+  // になっていた。プールを広げ、記事IDを起点に巡回させてリンク先を分散させる
+  const RELATED_COUNT = 6;
+  const relatedPosts = await getPostsByCategoryIds(post.categories, { perPage: 12 })
+    .then((r) => {
+      const pool = r.posts.filter((p) => p.id !== post.id);
+      if (pool.length === 0) return [];
+      const start = post.id % pool.length;
+      return Array.from({ length: Math.min(RELATED_COUNT, pool.length) }, (_, i) =>
+        pool[(start + i) % pool.length]
+      );
+    })
     .catch(() => []);
 
   // Breadcrumb items

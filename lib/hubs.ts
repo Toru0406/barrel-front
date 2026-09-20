@@ -1,6 +1,11 @@
 /**
  * サイトのハブ（読者向けテーマ別セクション）定義。
  *
+ * どのハブの wpCategoryIds にも入っていないカテゴリの記事は、ハブページにもサイトマップ経由の
+ * 導線にも現れず、/blog?page=2 からしか辿れなくなる。2026-09-20 時点でメンタル(20)と
+ * チームビルディング(10)の3本がその状態で、いずれも Google 未登録だった。
+ * カテゴリを増やしたら必ずどれかのハブに割り当てること。
+ *
  * WP カテゴリ ID は 2026-09-07 に以下のエンドポイントで確認済み:
  *   curl https://cms.getabarrel.com/wp-json/wp/v2/categories?per_page=100&_fields=id,slug,name,count
  * 結果（抜粋）:
@@ -33,8 +38,8 @@ export const HUBS: Hub[] = [
     label: "練習設計と指導",
     short: "練習・指導",
     tagline: "科学的根拠に基づく練習メニューと指導法を、現場で使える形で届ける。",
-    categorySlugs: ["coaching"],
-    wpCategoryIds: [3],
+    categorySlugs: ["coaching", "mental"],
+    wpCategoryIds: [3, 20], // 20=メンタル。指導者向けの内容なのでこのハブに寄せる
   },
   {
     id: "growth-body",
@@ -57,8 +62,11 @@ export const HUBS: Hub[] = [
     label: "チーム運営と保護者",
     short: "運営・保護者",
     tagline: "チームを円滑に動かす運営術と、保護者が選手をサポートするための情報。",
-    categorySlugs: ["management"],
-    wpCategoryIds: [6],
+    categorySlugs: [
+      "management",
+      "%e3%83%81%e3%83%bc%e3%83%a0%e3%83%93%e3%83%ab%e3%83%87%e3%82%a3%e3%83%b3%e3%82%b0", // チームビルディング（WPは日本語スラッグをパーセントエンコードで保持する）
+    ],
+    wpCategoryIds: [6, 10], // 10=チームビルディング
   },
   {
     id: "gear-supplement",
