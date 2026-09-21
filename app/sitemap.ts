@@ -30,6 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    {
+      // Metaのデータ削除コールバックに登録するため、クロール可能である必要がある
+      url: `${BASE}/legal/data-deletion`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
   ];
 
   // 全記事をページネーションで収集 (perPage=100)
