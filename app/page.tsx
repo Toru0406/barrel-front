@@ -16,6 +16,13 @@ import LineCta from "@/components/LineCta";
 import Eyebrow from "@/components/Eyebrow";
 import PrBadge from "@/components/PrBadge";
 
+import type { Metadata } from "next";
+
+// トップにだけ canonical を置く（ルートの metadata に書くと全ページが "/" を指してしまう）
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
 export const revalidate = 300;
 
 export default async function HomePage() {
@@ -56,6 +63,9 @@ export default async function HomePage() {
   /* ---------- レンダリング ---------- */
   return (
     <div style={{ backgroundColor: "var(--c-paper)" }}>
+      {/* ページの主題を示す見出し。デザイン上の先頭はリード記事なので、
+          レイアウトを変えずに読み上げ・検索エンジン向けにだけ置く */}
+      <h1 className="sr-only">BARREL｜研究に基づくスポーツ科学メディア</h1>
       {/* =====================================================
           Section 1: リード（7/5 グリッド）
           ===================================================== */}
