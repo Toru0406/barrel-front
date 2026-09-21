@@ -27,7 +27,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.getabarrel.com"),
-  title: { default: "BARREL", template: "%s | BARREL" },
+  // 「BARREL」は一般語で、同名の別ブランド（eスポーツのVARREL、バレルサウナ等）が検索結果を
+  // 占めている。単語だけのタイトルでは何のサイトか判別できないので、識別子を足す
+  title: { default: "BARREL｜研究に基づくスポーツ科学メディア", template: "%s | BARREL" },
   description: "研究に基づくスポーツ科学メディア。指導者・選手・保護者へ",
   robots: {
     index: true,
@@ -49,13 +51,36 @@ export const metadata: Metadata = {
   },
 };
 
-/* Organization 構造化データ（E-E-A-T 補強） */
+/* Organization / WebSite 構造化データ（E-E-A-T 補強と、検索エンジンへの同一性の明示）
+ *
+ * ブランド名が一般語なので、どの実体を指すのかを機械可読にしておく。
+ * sameAs に運営しているアカウントを並べると、同名の別ブランドとの区別が付きやすくなる。 */
+const SITE_URL = "https://www.getabarrel.com";
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
   name: "BARREL",
-  url: "https://www.getabarrel.com",
-  logo: "https://www.getabarrel.com/logo/barrel-logo.png",
+  alternateName: "BARREL（バレル）",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo/barrel-logo.png`,
+  description: "スポーツ科学の研究知見を、指導者・選手・保護者が現場で使える形に翻訳して届ける編集メディア。",
+  sameAs: [
+    "https://x.com/getabarrel",
+    "https://www.threads.com/@getabarrel",
+  ],
+};
+
+const webSiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  name: "BARREL",
+  alternateName: ["BARREL スポーツ科学メディア", "getabarrel"],
+  url: SITE_URL,
+  inLanguage: "ja",
+  publisher: { "@id": `${SITE_URL}/#organization` },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -76,6 +101,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        {/* WebSite JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
         />
 
         {/* GA4（NEXT_PUBLIC_GA_ID が設定されているときのみ読み込む） */}
