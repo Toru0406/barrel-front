@@ -5,11 +5,9 @@ import {
   getFeaturedImage,
   getPostCategories,
   formatDateDot,
-  evidenceCount,
   isSponsored,
 } from "@/lib/wordpress";
 import Eyebrow from "./Eyebrow";
-import EvidenceBadge from "./EvidenceBadge";
 import TrendingBadge from "./TrendingBadge";
 import PrBadge from "./PrBadge";
 
@@ -22,14 +20,13 @@ interface Props {
 
 /**
  * テキスト密度の高いリスト行。
- * eyebrow カテゴリ · display フォントタイトル · mono 日付 · 出典バッジ · 人気印
+ * eyebrow カテゴリ · display フォントタイトル · mono 日付 · 人気印
  * サムネイルは optional（右側 96px 固定）。
  */
 export default function ArticleListItem({ post, showThumbnail = true, trending = false }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
-  const count = evidenceCount(post);
   const sponsored = isSponsored(post);
 
   return (
@@ -46,7 +43,6 @@ export default function ArticleListItem({ post, showThumbnail = true, trending =
             {firstCat && (
               <Eyebrow>{firstCat.name}</Eyebrow>
             )}
-            <EvidenceBadge count={count} />
             <TrendingBadge trending={trending} />
           </div>
           <h2

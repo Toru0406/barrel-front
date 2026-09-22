@@ -5,7 +5,7 @@ interface Props {
 
 /**
  * 「よく読まれている」印。PVの実数は出さず、上位N本にだけ付ける相対表示。
- * 出典N件バッジ（Signature）より従属させるため、枠は持たせず緑の3px罫だけで示す。
+ * メタ行ではカテゴリの次に従属させたいので、枠も罫も持たせず日付と同じ muted で示す。
  */
 export default function TrendingBadge({ trending = false }: Props) {
   if (!trending) return null;

@@ -115,27 +115,28 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   /* PR表記（一覧カード）。記事を開く前に広告記事だと分かるようにするための情報。
-     出典バッジと同じ矩形に揃えつつ、文字色は本文と同じ濃さにして視認性を確保する。 */
+     枠と本文色で囲っていた頃はタイトルより先に目に入っていたため、枠を外し
+     日付と同じ --c-ink-muted に落とす。Yahoo!ニュース・日経と同じ扱い。
+     ただしステマ規制（景表法）が求めるのは「一般消費者にとって明瞭」であることなので、
+     これ以上薄くしない。#5F6B64 on #F8F7F3 = コントラスト比 約5:1（WCAG AA）で、
+     同じ行のカテゴリ・日付と同等の視認性を保つ。 */
   .pr-badge {
     font-family: var(--f-utility);
     font-size: var(--t-xs);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: .12em;
-    color: var(--c-ink);
-    border: var(--lw-1) solid var(--c-ink-muted);
-    border-radius: var(--r-1);
-    padding: 1px var(--s-2);
+    color: var(--c-ink-muted);
     white-space: nowrap;
   }
-  /* 緑帯の上（テーマ別セクション）ではベージュで同じ矩形を描く */
+  /* 緑帯の上（テーマ別セクション）。濃緑に muted は沈むのでベージュのまま */
   .pr-badge--band {
     color: var(--c-beige);
-    border-color: var(--c-beige);
   }
 
-  /* よく読まれている印（Oswald 大文字、緑の3px左罫）。
-     枠を持たせないことで、枠付きの出典バッジ（Signature）より従属させる。 */
+  /* よく読まれている印（Oswald 大文字）。
+     緑の3px左罫はメタ行で3つ目の視覚的な強調になっていたため外し、
+     日付と同じ従属要素に落とす。ホームには「よく読まれている」レールが別にある。 */
   .trending-badge {
     font-family: var(--f-utility);
     font-size: var(--t-xs);
@@ -143,8 +144,6 @@ h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
     letter-spacing: .12em;
     color: var(--c-ink-muted);
-    border-left: var(--lw-3) solid var(--c-green);
-    padding-left: var(--s-2);
     white-space: nowrap;
   }
 

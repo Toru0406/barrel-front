@@ -7,11 +7,9 @@ import {
   formatDateDot,
   readingTimeMin,
   leadParagraph,
-  evidenceCount,
   isSponsored,
 } from "@/lib/wordpress";
 import Eyebrow from "./Eyebrow";
-import EvidenceBadge from "./EvidenceBadge";
 import TrendingBadge from "./TrendingBadge";
 import PrBadge from "./PrBadge";
 
@@ -30,7 +28,6 @@ export default function LeadStory({ post, trending = false }: Props) {
   const categories = getPostCategories(post);
   const firstCat = categories[0];
   const lead = leadParagraph(post);
-  const count = evidenceCount(post);
   const sponsored = isSponsored(post);
 
   return (
@@ -61,7 +58,6 @@ export default function LeadStory({ post, trending = false }: Props) {
           <div className="rise flex flex-wrap items-center gap-x-s-3 gap-y-s-1 mb-s-2" style={{ "--i": 0 } as React.CSSProperties}>
             <PrBadge sponsored={sponsored} />
             {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
-            <EvidenceBadge count={count} />
             <TrendingBadge trending={trending} />
           </div>
 

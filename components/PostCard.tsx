@@ -5,10 +5,9 @@ import {
   getFeaturedImage,
   getPostCategories,
   formatDateDot,
-  evidenceCount,
   isSponsored,
 } from "@/lib/wordpress";
-import EvidenceBadge from "./EvidenceBadge";
+import Eyebrow from "./Eyebrow";
 import TrendingBadge from "./TrendingBadge";
 import PrBadge from "./PrBadge";
 
@@ -22,7 +21,6 @@ export default function PostCard({ post, trending = false }: Props) {
   const image = getFeaturedImage(post);
   const categories = getPostCategories(post);
   const firstCat = categories[0];
-  const count = evidenceCount(post);
   const sponsored = isSponsored(post);
 
   return (
@@ -52,11 +50,9 @@ export default function PostCard({ post, trending = false }: Props) {
         <div className="p-s-4">
           <div className="flex flex-wrap items-center gap-x-s-2 gap-y-s-1 mb-s-2">
             <PrBadge sponsored={sponsored} />
-            {firstCat && (
-              /* badge クラスは app/blog/[slug]/page.tsx との互換のため保持 */
-              <span className="badge">{firstCat.name}</span>
-            )}
-            <EvidenceBadge count={count} />
+            {/* カテゴリは緑ベタ塗りの .badge をやめ、他のカード3種と同じ eyebrow に揃える
+                （同じ情報が面によって2表現になっていた） */}
+            {firstCat && <Eyebrow>{firstCat.name}</Eyebrow>}
             <TrendingBadge trending={trending} />
           </div>
 
