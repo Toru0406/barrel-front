@@ -380,13 +380,20 @@ h1, h2, h3, h4, h5, h6 {
   outline: var(--lw-3) solid var(--c-green);
   outline-offset: 2px;
 }
-/* PR表記（本文冒頭、body と同サイズ、muted） */
+/* PR表記（本文冒頭）。
+   本文と同サイズ＋太字だと記事の主役が広告表示になり、媒体としての質が落ちる。
+   消費者庁のQ&Aが求めるのは「一般消費者にとって明瞭」であることで、文字サイズ・色も
+   判断材料になるため、小さくしても読める濃さ（ink-muted）を保ち、冒頭という位置は動かさない。 */
 .barrel-pr {
   font-family: var(--f-body);
-  font-size: var(--t-base);
+  font-size: var(--t-sm);
+  line-height: 1.5;
   color: var(--c-ink-muted);
-  margin-bottom: var(--s-5);
+  margin: 0 0 var(--s-5);
+  padding-bottom: var(--s-2);
+  border-bottom: var(--lw-1) solid var(--c-line);
 }
+.barrel-pr strong { font-weight: inherit; } /* 生成側が強調を付けても打ち消す */
 
 /* CTAカード（記事末尾の案内枠） */
 .barrel-cta {
