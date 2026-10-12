@@ -1,4 +1,6 @@
-const WP_BASE = process.env.WORDPRESS_API_URL || "https://cms.getabarrel.com/wp-json/wp/v2";
+// 2026-10-12 に WordPress（cms.getabarrel.com / Hetzner）を廃止し、記事の保管庫を Supabase に移した。
+// 画面側を変えないよう、返す形（WPPost / WPCategory）と関数名は WP REST 時代のまま。
+// 読むのは anon キー＋RLS（公開記事だけ見える）。キャッシュは WP 時代と同じく fetch の revalidate で持つ。
 
 export interface WPPost {
   id: number;
@@ -30,10 +32,88 @@ export interface WPCategory {
   description: string;
 }
 
-async function wpFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${WP_BASE}${path}`, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status} ${path}`);
-  return res.json() as Promise<T>;
+interface PostRow {
+  id: number;
+  slug: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  category_ids: number[];
+  featured_image_url: string | null;
+  featured_image_alt: string;
+  date: string;
+  modified: string;
+}
+
+type CategoryRow = Omit<WPCategory, "count">;
+
+const POST_FIELDS = "id,slug,title,content,excerpt,category_ids,featured_image_url,featured_image_alt,date,modified";
+
+function supabaseEnv(): { url: string; key: string } {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY が未設定");
+  return { url, key };
+}
+
+async function rest<T>(query: string, opts: { count?: boolean } = {}): Promise<{ rows: T; total: number }> {
+  const { url, key } = supabaseEnv();
+  const res = await fetch(`${url}/rest/v1/${query}`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}`, ...(opts.count ? { Prefer: "count=exact" } : {}) },
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error(`Supabase API error: ${res.status} ${query.split("?")[0]}`);
+  // Content-Range: 0-11/56 の "/" 以降が総数
+  const total = Number(res.headers.get("content-range")?.split("/")[1] ?? 0);
+  return { rows: (await res.json()) as T, total };
+}
+
+async function categoryRows(): Promise<CategoryRow[]> {
+  return (await rest<CategoryRow[]>("categories?select=id,name,slug,parent,description&order=id")).rows;
+}
+
+function toWPPost(p: PostRow, cats: Map<number, CategoryRow>): WPPost {
+  const terms = p.category_ids.map((id) => cats.get(id)).filter((c): c is CategoryRow => Boolean(c)).map((c) => ({ ...c, count: 0 }));
+  return {
+    id: p.id,
+    date: p.date,
+    modified: p.modified,
+    slug: p.slug,
+    link: `https://www.getabarrel.com/articles/${p.slug}`,
+    title: { rendered: p.title },
+    content: { rendered: p.content },
+    excerpt: { rendered: p.excerpt },
+    featured_media: p.featured_image_url ? 1 : 0,
+    categories: p.category_ids,
+    _embedded: {
+      ...(p.featured_image_url ? { "wp:featuredmedia": [{ source_url: p.featured_image_url, alt_text: p.featured_image_alt }] } : {}),
+      "wp:term": [terms],
+    },
+  };
+}
+
+async function listPosts(filter: string, page: number, perPage: number): Promise<{ posts: WPPost[]; total: number; totalPages: number }> {
+  const offset = (page - 1) * perPage;
+  const [{ rows, total }, cats] = await Promise.all([
+    rest<PostRow[]>(`posts?select=${POST_FIELDS}&status=eq.publish${filter}&order=date.desc&limit=${perPage}&offset=${offset}`, { count: true }),
+    categoryRows(),
+  ]);
+  const byId = new Map(cats.map((c) => [c.id, c]));
+  return { posts: rows.map((p) => toWPPost(p, byId)), total, totalPages: Math.max(1, Math.ceil(total / perPage)) };
+}
+
+/**
+ * URL の slug を保存時の形（小文字のパーセントエンコード。WP の sanitize_title と同じ）にそろえる。
+ * ブラウザは大文字（%E9）で、Google やSNSに残るリンクは小文字（%e9）で来るため、どちらでも同じ記事に当てる。
+ */
+export function normalizeSlug(raw: string): string {
+  let decoded = raw;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch {
+    // 壊れたエンコードはそのまま
+  }
+  return encodeURIComponent(decoded).toLowerCase();
 }
 
 export async function getPosts(params?: {
@@ -42,81 +122,56 @@ export async function getPosts(params?: {
   categoryId?: number;
 }): Promise<{ posts: WPPost[]; total: number; totalPages: number }> {
   const { page = 1, perPage = 12, categoryId } = params ?? {};
-  const qs = new URLSearchParams({
-    _embed: "1",
-    per_page: String(perPage),
-    page: String(page),
-  });
-  if (categoryId) qs.set("categories", String(categoryId));
-
-  const res = await fetch(`${WP_BASE}/posts?${qs}`, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status}`);
-
-  const posts = (await res.json()) as WPPost[];
-  return {
-    posts,
-    total: Number(res.headers.get("x-wp-total") ?? 0),
-    totalPages: Number(res.headers.get("x-wp-totalpages") ?? 1),
-  };
+  return listPosts(categoryId ? `&category_ids=cs.{${categoryId}}` : "", page, perPage);
 }
 
-/** 複数カテゴリID で記事を取得（WP は categories=1,2,3 をOR検索で処理する） */
+/** 複数カテゴリID で記事を取得（いずれかのカテゴリに入っていれば対象。WP の categories=1,2,3 と同じOR検索） */
 export async function getPostsByCategoryIds(
   ids: number[],
   opts: { page?: number; perPage?: number } = {}
 ): Promise<{ posts: WPPost[]; total: number; totalPages: number }> {
   const { page = 1, perPage = 12 } = opts;
-  const qs = new URLSearchParams({
-    _embed: "1",
-    per_page: String(perPage),
-    page: String(page),
-    categories: ids.join(","),
-  });
-  const res = await fetch(`${WP_BASE}/posts?${qs}`, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status}`);
-  const posts = (await res.json()) as WPPost[];
-  return {
-    posts,
-    total: Number(res.headers.get("x-wp-total") ?? 0),
-    totalPages: Number(res.headers.get("x-wp-totalpages") ?? 1),
-  };
+  return listPosts(`&category_ids=ov.{${ids.join(",")}}`, page, perPage);
 }
 
-/** 全文検索（?search= パラメータ使用） */
+/** 全文検索（タイトルと本文の部分一致） */
 export async function searchPosts(
   q: string,
   page = 1
 ): Promise<{ posts: WPPost[]; total: number; totalPages: number }> {
-  const qs = new URLSearchParams({
-    _embed: "1",
-    per_page: "12",
-    page: String(page),
-    search: q,
-  });
-  const res = await fetch(`${WP_BASE}/posts?${qs}`, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error(`WordPress API error: ${res.status}`);
-  const posts = (await res.json()) as WPPost[];
-  return {
-    posts,
-    total: Number(res.headers.get("x-wp-total") ?? 0),
-    totalPages: Number(res.headers.get("x-wp-totalpages") ?? 1),
-  };
+  // PostgREST の or=() 構文を壊す記号は落とす
+  const term = q.replace(/[,()"*\\]/g, " ").trim();
+  if (!term) return { posts: [], total: 0, totalPages: 1 };
+  const pattern = encodeURIComponent(`"*${term}*"`);
+  return listPosts(`&or=(title.ilike.${pattern},content.ilike.${pattern})`, page, 12);
 }
 
 export async function getPostBySlug(slug: string): Promise<WPPost | null> {
-  const posts = await wpFetch<WPPost[]>(`/posts?slug=${encodeURIComponent(slug)}&_embed=1`);
-  return posts[0] ?? null;
+  const key = normalizeSlug(slug);
+  const [{ rows }, cats] = await Promise.all([
+    rest<PostRow[]>(`posts?select=${POST_FIELDS}&status=eq.publish&slug=eq.${encodeURIComponent(key)}&limit=1`),
+    categoryRows(),
+  ]);
+  return rows[0] ? toWPPost(rows[0], new Map(cats.map((c) => [c.id, c]))) : null;
 }
 
 /** hideEmpty=true（既定）は記事0件のカテゴリを除外。ナビ生成では構造維持のため false で呼ぶ。 */
 export async function getCategories(opts?: { hideEmpty?: boolean }): Promise<WPCategory[]> {
   const hideEmpty = opts?.hideEmpty ?? true;
-  return wpFetch<WPCategory[]>(`/categories?per_page=100&hide_empty=${hideEmpty}`);
+  const [cats, { rows }] = await Promise.all([
+    categoryRows(),
+    rest<Array<{ category_ids: number[] }>>("posts?select=category_ids&status=eq.publish"),
+  ]);
+  const counts = new Map<number, number>();
+  for (const r of rows) for (const id of r.category_ids) counts.set(id, (counts.get(id) ?? 0) + 1);
+  return cats
+    .map((c) => ({ ...c, count: counts.get(c.id) ?? 0 }))
+    .filter((c) => !hideEmpty || c.count > 0);
 }
 
 export async function getCategoryBySlug(slug: string): Promise<WPCategory | null> {
-  const cats = await wpFetch<WPCategory[]>(`/categories?slug=${encodeURIComponent(slug)}`);
-  return cats[0] ?? null;
+  const cats = await getCategories({ hideEmpty: false });
+  return cats.find((c) => c.slug === slug) ?? null;
 }
 
 export function getFeaturedImage(post: WPPost): { src: string; alt: string } | null {

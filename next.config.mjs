@@ -24,7 +24,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "getabarrel.com" },
       { protocol: "https", hostname: "www.getabarrel.com" },
-      { protocol: "https", hostname: "cms.getabarrel.com" },
+      // 記事画像の置き場（2026-10-12 に WordPress から移した Supabase Storage）
+      { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
 };
