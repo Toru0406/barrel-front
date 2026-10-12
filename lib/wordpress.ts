@@ -72,7 +72,12 @@ async function categoryRows(): Promise<CategoryRow[]> {
   return (await rest<CategoryRow[]>("categories?select=id,name,slug,parent,description&order=id")).rows;
 }
 
+// 旧 WordPress の画像URL（ホストは解約済み）。移行で取り直せなかった画像はアイキャッチ無しとして扱う。
+// next/image は許可していないホストの src でページごと 500 にするため、ここで落とす
+const DEAD_IMAGE_HOST = "cms.getabarrel.com";
+
 function toWPPost(p: PostRow, cats: Map<number, CategoryRow>): WPPost {
+  const image = p.featured_image_url && !p.featured_image_url.includes(DEAD_IMAGE_HOST) ? p.featured_image_url : null;
   const terms = p.category_ids.map((id) => cats.get(id)).filter((c): c is CategoryRow => Boolean(c)).map((c) => ({ ...c, count: 0 }));
   return {
     id: p.id,
@@ -83,10 +88,10 @@ function toWPPost(p: PostRow, cats: Map<number, CategoryRow>): WPPost {
     title: { rendered: p.title },
     content: { rendered: p.content },
     excerpt: { rendered: p.excerpt },
-    featured_media: p.featured_image_url ? 1 : 0,
+    featured_media: image ? 1 : 0,
     categories: p.category_ids,
     _embedded: {
-      ...(p.featured_image_url ? { "wp:featuredmedia": [{ source_url: p.featured_image_url, alt_text: p.featured_image_alt }] } : {}),
+      ...(image ? { "wp:featuredmedia": [{ source_url: image, alt_text: p.featured_image_alt }] } : {}),
       "wp:term": [terms],
     },
   };
