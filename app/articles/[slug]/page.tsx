@@ -130,14 +130,16 @@ export default async function ArticlePage({ params }: Props) {
   // 同カテゴリの新着4本から3本を出す形だと、カテゴリ内の古い記事には内部リンクが1本も付かない。
   // 2026-09-20 時点で記事間リンクは全記事3本固定で、被リンクの薄い記事がそのまま Google 未登録
   // になっていた。プールを広げ、記事IDを起点に巡回させてリンク先を分散させる
+  // 2026-11-07: 新着12本だけのプールでは13本目以降（最多閲覧の記事217を含む6本）に被リンクが付かなかった。
+  // カテゴリ全件を並べ、自分の直後の6本を出す。どの記事も直前6本から必ずリンクされる
   const RELATED_COUNT = 6;
-  const relatedPosts = await getPostsByCategoryIds(post.categories, { perPage: 12 })
+  const relatedPosts = await getPostsByCategoryIds(post.categories, { perPage: 100 })
     .then((r) => {
-      const pool = r.posts.filter((p) => p.id !== post.id);
-      if (pool.length === 0) return [];
-      const start = post.id % pool.length;
-      return Array.from({ length: Math.min(RELATED_COUNT, pool.length) }, (_, i) =>
-        pool[(start + i) % pool.length]
+      const list = r.posts.some((p) => p.id === post.id) ? r.posts : [post, ...r.posts];
+      if (list.length <= 1) return [];
+      const self = list.findIndex((p) => p.id === post.id);
+      return Array.from({ length: Math.min(RELATED_COUNT, list.length - 1) }, (_, i) =>
+        list[(self + 1 + i) % list.length]
       );
     })
     .catch(() => []);
