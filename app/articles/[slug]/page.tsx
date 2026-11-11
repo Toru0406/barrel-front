@@ -10,7 +10,10 @@ import {
   formatDateDot,
   readingTimeMin,
 } from "@/lib/wordpress";
-import { processContent, extractKeyPoints, dataAsOf, shouldShowModified, effectiveModified } from "@/lib/article";
+import { processContent, extractKeyPoints, dataAsOf, shouldShowModified, effectiveModified, splitForInlineCta } from "@/lib/article";
+import LineInlineCta from "@/components/LineInlineCta";
+import LineStickyBar from "@/components/LineStickyBar";
+import LineClickTracker from "@/components/LineClickTracker";
 import KeyPoints from "@/components/KeyPoints";
 import ArticleToc from "@/components/ArticleToc";
 import ShareBar from "@/components/ShareBar";
@@ -145,6 +148,8 @@ export default async function ArticlePage({ params }: Props) {
   // Breadcrumb items
   const firstCat = categories[0];
   const hub = firstCat ? hubForCategorySlug(firstCat.slug) : null;
+  // 比較記事（道具・サプリのハブ）は「よくある質問」の前、研究記事は3つ目の見出しの前に LINE 導線を挟む
+  const bodyParts = splitForInlineCta(processed.html, hub?.id === "gear-supplement");
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "ホーム", href: "/" },
     ...(hub
@@ -269,11 +274,20 @@ export default async function ArticlePage({ params }: Props) {
             {/* KeyPoints ボックス */}
             <KeyPoints data={keyPoints} />
 
-            {/* 記事本文 */}
-            <div
-              className="prose-barrel mt-8"
-              dangerouslySetInnerHTML={{ __html: processed.html }}
-            />
+            {/* 記事本文。本文の途中に LINE 導線を挟む（2026-11-11。位置は splitForInlineCta） */}
+            {bodyParts ? (
+              <>
+                <div className="prose-barrel mt-8" dangerouslySetInnerHTML={{ __html: bodyParts[0] }} />
+                <LineInlineCta topic={hub?.label} />
+                <div className="prose-barrel" dangerouslySetInnerHTML={{ __html: bodyParts[1] }} />
+              </>
+            ) : (
+              <div
+                className="prose-barrel mt-8"
+                dangerouslySetInnerHTML={{ __html: processed.html }}
+              />
+            )}
+            <LineClickTracker />
             <AffiliateClickTracker />
 
             {/* シェアバー */}
@@ -284,6 +298,7 @@ export default async function ArticlePage({ params }: Props) {
 
             {/* 関連記事 */}
             <RelatedArticles posts={relatedPosts} />
+            {process.env.NEXT_PUBLIC_LINE_ADD_URL && <LineStickyBar lineUrl={process.env.NEXT_PUBLIC_LINE_ADD_URL} />}
           </div>
 
           {/* ── デスクトップ目次: 画面右下に固定し、ホバー・クリックで開く ── */}

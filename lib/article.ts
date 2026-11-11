@@ -210,3 +210,18 @@ export function shouldShowModified(date: string, modified: string | null | undef
 export function effectiveModified(date: string, modified: string | null | undefined): string {
   return modified && new Date(modified).getTime() > new Date(date).getTime() ? modified : date;
 }
+
+/**
+ * 本文中の LINE 導線を差し込む位置で本文を2つに分ける（2026-11-11）。置けなければ null。
+ * ・研究記事: 3つ目の h2 の直前（読者がテーマに入り込んだ中盤。冒頭の要点や序論は邪魔しない）
+ * ・比較記事: 「よくある質問」の h2 の直前（購入導線の「比較表の直後・各商品」の流れに割り込まない）
+ * h2 は生成側（theme-engine）で本文の直下に置かれるので、その位置で切っても要素の入れ子は崩れない。
+ */
+export function splitForInlineCta(html: string, comparison: boolean): [string, string] | null {
+  const h2s = Array.from(html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g));
+  const at = comparison
+    ? h2s.find((m) => m[1]!.replace(/<[^>]+>/g, "").trim().startsWith("よくある質問"))
+    : h2s[2];
+  if (!at || at.index === undefined || at.index === 0) return null;
+  return [html.slice(0, at.index), html.slice(at.index)];
+}

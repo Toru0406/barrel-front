@@ -28,6 +28,7 @@ export default async function LineCta() {
       className="py-s-7 px-s-4"
       style={{ backgroundColor: "var(--c-paper-2)" }}
       aria-label="LINE 登録案内"
+      id="line-cta"
     >
       <div className="mx-auto flex max-w-[760px] flex-col items-center gap-s-5 md:flex-row md:justify-center md:gap-s-7">
         <div className="text-center md:text-left">
@@ -54,10 +55,10 @@ export default async function LineCta() {
             <span className="hidden md:inline">PCの方はQRコードをスマホのLINEで読み取ってください。</span>
           </p>
           {/* スマホでは同じタブで遷移させる（別タブだと iOS でアプリ連携が切れることがある） */}
-          <a href={lineUrl} rel="noopener" className="btn-cta md:hidden">
+          <a href={lineUrl} rel="noopener" className="btn-cta md:hidden" data-line-pos="footer">
             LINE で受け取る（無料）
           </a>
-          <a href={lineUrl} rel="noopener" target="_blank" className="btn-cta hidden md:inline-block">
+          <a href={lineUrl} rel="noopener" target="_blank" className="btn-cta hidden md:inline-block" data-line-pos="footer">
             LINE で受け取る（無料）
           </a>
         </div>
