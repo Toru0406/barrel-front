@@ -180,3 +180,33 @@ export function extractKeyPoints(raw: string, headings: Heading[]): KeyPointsDat
 
   return { lead, items, firstHeadingId };
 }
+
+/**
+ * 比較記事の価格・レビューの取得日（"YYYY-MM-DD"）。無ければ null。2026-11-11 追加。
+ * theme-engine の商品ブロックの注記（p.barrel-aff-note）が data-as-of に持つ。それ以前に作った記事は
+ * 注記の文字「価格・レビューは2026年10月21日時点の情報です」から読む（記事の一括書き換えはしない）。
+ * 複数あれば最も新しい日にする。
+ */
+export function dataAsOf(raw: string): string | null {
+  // tsconfig の target が古く、matchAll の結果を直接展開できないので Array.from で受ける
+  const dates = [
+    ...Array.from(raw.matchAll(/data-as-of="(\d{4}-\d{2}-\d{2})"/g), (m) => m[1]!),
+    ...Array.from(raw.matchAll(/価格・レビューは(\d{4})年(\d{1,2})月(\d{1,2})日時点/g),
+      (m) => `${m[1]}-${m[2]!.padStart(2, "0")}-${m[3]!.padStart(2, "0")}`),
+  ].sort();
+  return dates.length ? dates[dates.length - 1]! : null;
+}
+
+/**
+ * 「更新」を表示するか。公開日より1日以上「後」のときだけ出す。2026-11-11 修正。
+ * 以前は差の絶対値で判定しており、記事を生成した日（modified）が公開日より前の記事で、
+ * 公開日より前の「更新」日が表示されていた（例: 公開 2026.11.07／更新 2026.10.21）。
+ */
+export function shouldShowModified(date: string, modified: string | null | undefined): boolean {
+  return modified != null && new Date(modified).getTime() - new Date(date).getTime() >= 86_400_000;
+}
+
+/** 構造化データ・OGP の更新日。公開日より前にはしない */
+export function effectiveModified(date: string, modified: string | null | undefined): string {
+  return modified && new Date(modified).getTime() > new Date(date).getTime() ? modified : date;
+}
