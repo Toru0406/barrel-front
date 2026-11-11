@@ -86,6 +86,7 @@ export default function Header() {
           {LINE_URL && (
             <a
               href={LINE_URL}
+              data-line-pos="header"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-cta hidden text-xs lg:inline-block"
@@ -154,6 +155,7 @@ export default function Header() {
         {LINE_URL && (
           <a
             href={LINE_URL}
+              data-line-pos="header"
             rel="noopener"
             className="btn-cta mt-4 text-sm"
             onClick={() => setOpen(false)}
