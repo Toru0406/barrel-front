@@ -28,7 +28,8 @@ export const revalidate = 300;
 export default async function HomePage() {
   /* ---------- データ取得 ---------- */
   const [latestResult, popularSlugs, trendingSlugs] = await Promise.all([
-    getPosts({ perPage: 20 }).catch(() => ({ posts: [] as WPPost[], total: 0, totalPages: 0 })),
+    // 研究記事だけで注目・最新の11本を埋めるため、比較記事が混ざる分を見込んで多めに取る
+    getPosts({ perPage: 40 }).catch(() => ({ posts: [] as WPPost[], total: 0, totalPages: 0 })),
     getPopularSlugs(8).catch(() => [] as string[]),
     getTrendingSlugSet().catch(() => new Set<string>()),
   ]);
@@ -51,14 +52,24 @@ export default async function HomePage() {
       : Promise.resolve([] as WPPost[]),
   ]);
 
+  /* 研究記事と比較（PR）記事の枠を分ける（2026-11-11）。
+     トップの「注目」「最新」「よく読まれている」が比較記事で埋まり、研究メディアの顔が見えなかった。
+     比較記事は「テーマから探す」の「道具・サプリの選び方」列に集約する。
+     ★振り分けは isSponsored ではなくハブのカテゴリで行う。isSponsored は本文にもしもリンクがあれば真になり、
+       中盤に文脈CTA（この記事の内容を実践する道具）を持つ研究記事まで外れてしまうため */
+  const gearIds = new Set(HUBS.find((h) => h.id === "gear-supplement")?.wpCategoryIds ?? []);
+  const isComparison = (post: WPPost) => post.categories.some((id) => gearIds.has(id));
+  const researchPosts = latestPosts.filter((p) => !isComparison(p));
+  const resolvedPopular = resolvedPopularRaw.filter((p) => !isComparison(p));
+
   const popularPosts: WPPost[] =
-    resolvedPopularRaw.length > 0 ? resolvedPopularRaw : latestPosts.slice(3, 11);
+    resolvedPopular.length > 0 ? resolvedPopular : researchPosts.slice(3, 11);
 
   /* ページレイアウト用に分配 */
-  const lead = latestPosts[0];
-  const sub1 = latestPosts[1];
-  const sub2 = latestPosts[2];
-  const latestList = latestPosts.slice(3, 11);
+  const lead = researchPosts[0];
+  const sub1 = researchPosts[1];
+  const sub2 = researchPosts[2];
+  const latestList = researchPosts.slice(3, 11);
 
   /* ---------- レンダリング ---------- */
   return (
@@ -112,99 +123,7 @@ export default async function HomePage() {
       </section>
 
       {/* =====================================================
-          Section 2: 最新（8/4 グリッド）
-          ===================================================== */}
-      <section aria-label="最新記事">
-        <div
-          className="mx-auto px-4 py-s-7"
-          style={{ maxWidth: 1240 }}
-        >
-          <div className="grid grid-cols-12 gap-s-6">
-            {/* 最新リスト: 8 col */}
-            <div className="col-span-12 lg:col-span-8">
-              <SectionHeading
-                title="最新"
-                allHref="/blog"
-                allLabel="すべて見る →"
-              />
-              {latestList.length > 0 ? (
-                latestList.map((post) => (
-                  <ArticleListItem
-                    key={post.id}
-                    post={post}
-                    showThumbnail
-                    trending={trendingSlugs.has(post.slug)}
-                  />
-                ))
-              ) : (
-                <p style={{ color: "var(--c-ink-muted)", fontFamily: "var(--f-body)" }}>
-                  記事がありません
-                </p>
-              )}
-            </div>
-
-            {/* よく読まれている: 4 col */}
-            <div
-              className="col-span-12 lg:col-span-4"
-              style={{
-                borderLeft: "1px solid var(--c-line)",
-                paddingLeft: "var(--s-5)",
-              }}
-            >
-              <SectionHeading title="よく読まれている" />
-              {popularPosts.length > 0 && (
-                <ol aria-label="人気記事ランキング">
-                  {popularPosts.slice(0, 8).map((post, i) => (
-                    <li
-                      key={post.id}
-                      style={{ borderBottom: "1px solid var(--c-line)" }}
-                    >
-                      <Link
-                        href={`/articles/${post.slug}`}
-                        className="flex gap-s-3 items-start py-s-3 min-h-[44px] transition-opacity hover:opacity-75"
-                      >
-                        {/* 番号: Oswald 大文字 */}
-                        <span
-                          aria-hidden="true"
-                          className="flex-shrink-0 w-7 text-right leading-none pt-0.5"
-                          style={{
-                            fontFamily: "var(--f-utility)",
-                            fontSize: "var(--t-xl)",
-                            fontWeight: 500,
-                            color: "var(--c-ink-muted)",
-                          }}
-                        >
-                          {i + 1}
-                        </span>
-                        <span className="flex-1 min-w-0">
-                          <span
-                            className="line-clamp-3 block"
-                            style={{
-                              fontFamily: "var(--f-display)",
-                              fontSize: "var(--t-sm)",
-                              fontWeight: 700,
-                              color: "var(--c-ink)",
-                              lineHeight: 1.5,
-                              letterSpacing: "0.02em",
-                            }}
-                            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                          />
-                          {isSponsored(post) && (
-                            <PrBadge sponsored className="mt-1 inline-block" />
-                          )}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          Section 3: テーマ別（全幅緑帯）
+          Section 2: テーマ別（全幅緑帯）。2026-11-11 に最新の上へ移した（ハブへの導線をページ下部から上げる）
           ===================================================== */}
       <section className="line-band" aria-label="テーマ別記事">
         <div className="mx-auto px-4 py-s-7" style={{ maxWidth: 1240 }}>
@@ -308,6 +227,98 @@ export default async function HomePage() {
                 </Link>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          Section 3: 最新（8/4 グリッド）。研究記事だけ
+          ===================================================== */}
+      <section aria-label="最新記事">
+        <div
+          className="mx-auto px-4 py-s-7"
+          style={{ maxWidth: 1240 }}
+        >
+          <div className="grid grid-cols-12 gap-s-6">
+            {/* 最新リスト: 8 col */}
+            <div className="col-span-12 lg:col-span-8">
+              <SectionHeading
+                title="最新"
+                allHref="/blog"
+                allLabel="すべて見る →"
+              />
+              {latestList.length > 0 ? (
+                latestList.map((post) => (
+                  <ArticleListItem
+                    key={post.id}
+                    post={post}
+                    showThumbnail
+                    trending={trendingSlugs.has(post.slug)}
+                  />
+                ))
+              ) : (
+                <p style={{ color: "var(--c-ink-muted)", fontFamily: "var(--f-body)" }}>
+                  記事がありません
+                </p>
+              )}
+            </div>
+
+            {/* よく読まれている: 4 col */}
+            <div
+              className="col-span-12 lg:col-span-4"
+              style={{
+                borderLeft: "1px solid var(--c-line)",
+                paddingLeft: "var(--s-5)",
+              }}
+            >
+              <SectionHeading title="よく読まれている" />
+              {popularPosts.length > 0 && (
+                <ol aria-label="人気記事ランキング">
+                  {popularPosts.slice(0, 8).map((post, i) => (
+                    <li
+                      key={post.id}
+                      style={{ borderBottom: "1px solid var(--c-line)" }}
+                    >
+                      <Link
+                        href={`/articles/${post.slug}`}
+                        className="flex gap-s-3 items-start py-s-3 min-h-[44px] transition-opacity hover:opacity-75"
+                      >
+                        {/* 番号: Oswald 大文字 */}
+                        <span
+                          aria-hidden="true"
+                          className="flex-shrink-0 w-7 text-right leading-none pt-0.5"
+                          style={{
+                            fontFamily: "var(--f-utility)",
+                            fontSize: "var(--t-xl)",
+                            fontWeight: 500,
+                            color: "var(--c-ink-muted)",
+                          }}
+                        >
+                          {i + 1}
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span
+                            className="line-clamp-3 block"
+                            style={{
+                              fontFamily: "var(--f-display)",
+                              fontSize: "var(--t-sm)",
+                              fontWeight: 700,
+                              color: "var(--c-ink)",
+                              lineHeight: 1.5,
+                              letterSpacing: "0.02em",
+                            }}
+                            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+                          />
+                          {isSponsored(post) && (
+                            <PrBadge sponsored className="mt-1 inline-block" />
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
           </div>
         </div>
       </section>

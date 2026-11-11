@@ -10,7 +10,7 @@ import {
   formatDateDot,
   readingTimeMin,
 } from "@/lib/wordpress";
-import { processContent, extractKeyPoints } from "@/lib/article";
+import { processContent, extractKeyPoints, dataAsOf, shouldShowModified, effectiveModified } from "@/lib/article";
 import KeyPoints from "@/components/KeyPoints";
 import ArticleToc from "@/components/ArticleToc";
 import ShareBar from "@/components/ShareBar";
@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       publishedTime: post.date,
-      modifiedTime: post.modified,
+      modifiedTime: effectiveModified(post.date, post.modified),
       images: image
         ? [{ url: image.src, width: 1200, height: 675, alt: image.alt }]
         : [{ url: `${BASE_URL}/articles/${params.slug}/opengraph-image` }],
@@ -114,13 +114,11 @@ export default async function ArticlePage({ params }: Props) {
   const evCount = evidenceCount(post);
   const readMin = readingTimeMin(post);
 
-  // Modified date — only show if differs from publish date by ≥1 day
+  // 更新日は公開日より1日以上「後」のときだけ出す（2026-11-11: 以前は差の絶対値で判定し、公開日より前の更新日が出ていた）
   const modifiedStr = post.modified;
-  const showModified =
-    modifiedStr != null &&
-    Math.abs(
-      new Date(modifiedStr).getTime() - new Date(post.date).getTime()
-    ) >= 86_400_000;
+  const showModified = shouldShowModified(post.date, modifiedStr);
+  // 比較記事の価格・レビューの取得日。更新日とは別に出し、価格がいつの情報かを本文を読まなくても分かるようにする
+  const priceAsOf = dataAsOf(post.content.rendered);
 
   // Content processing
   const processed = processContent(post.content.rendered);
@@ -167,7 +165,7 @@ export default async function ArticlePage({ params }: Props) {
         "@type": "Article",
         headline: plainTitle,
         datePublished: post.date,
-        dateModified: post.modified ?? post.date,
+        dateModified: effectiveModified(post.date, post.modified),
         image: image ? [image.src] : [],
         author: {
           "@type": "Organization",
@@ -236,6 +234,11 @@ export default async function ArticlePage({ params }: Props) {
                 <time dateTime={modifiedStr}>
                   更新 {formatDateDot(modifiedStr)}
                 </time>
+              )}
+              {priceAsOf && (
+                <span>
+                  価格・レビュー <time dateTime={priceAsOf}>{formatDateDot(priceAsOf)}</time> 時点
+                </span>
               )}
               <span>{readMin}分で読める</span>
               <EvidenceBadge count={evCount} />
