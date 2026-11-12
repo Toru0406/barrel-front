@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import {
   verifySignature, pickArticles, buildReply,
-  isHelpRequest, helpMessages, isSmallTalk, smallTalkMessages, isPainConsultation, reply, type LineEvent,
+  isHelpRequest, helpMessages, isSmallTalk, smallTalkMessages, isPainConsultation, matchHub, reply, type LineEvent,
 } from "@/lib/line";
+import { recordLineQuery, type LineQueryKind } from "@/lib/lineLog";
 
 // LINE公式アカウントのWebhook。ユーザーの発話に「応答メッセージ」で返す。
 // 応答は料金プランの通数にカウントされないため、無料プラン（月200通）でも無制限に使える。
@@ -45,10 +46,14 @@ export async function POST(request: Request) {
         // リッチメニューの「使い方」ボタンはこの語を送ってくる。記事検索にかけても意味がない
         // あいさつ・お礼は記事検索にかけない。痛み・ケガの相談は医療機関の一文を付け、比較（PR）記事を返さない（2026-11-11）
         const pain = isPainConsultation(text);
-        const messages = isHelpRequest(text) ? helpMessages()
-          : isSmallTalk(text) ? smallTalkMessages()
-          : buildReply(await pickArticles(text, { excludeComparison: pain }), { pain });
+        const kind: LineQueryKind = isHelpRequest(text) ? "help" : isSmallTalk(text) ? "smalltalk" : matchHub(text) ? "hub" : "search";
+        const posts = kind === "search" || kind === "hub" ? await pickArticles(text, { excludeComparison: pain }) : [];
+        const messages = kind === "help" ? helpMessages()
+          : kind === "smalltalk" ? smallTalkMessages()
+          : buildReply(posts, { pain });
         await reply(event.replyToken, messages, accessToken);
+        // 何を聞かれ、記事を返せたかを残す（ユーザーIDは保存しない。返信の後に行い、失敗しても返信には影響しない）
+        await recordLineQuery({ kind, text, pain, slugs: posts.map((p) => p.slug) });
         handled++;
       }
     } catch (e) {
