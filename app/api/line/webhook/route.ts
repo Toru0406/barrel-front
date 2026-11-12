@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   verifySignature, pickArticles, buildReply,
-  isHelpRequest, helpMessages, reply, type LineEvent,
+  isHelpRequest, helpMessages, isSmallTalk, smallTalkMessages, isPainConsultation, reply, type LineEvent,
 } from "@/lib/line";
 
 // LINE公式アカウントのWebhook。ユーザーの発話に「応答メッセージ」で返す。
@@ -43,7 +43,11 @@ export async function POST(request: Request) {
         const text = (event.message.text ?? "").trim();
         if (!text) continue;
         // リッチメニューの「使い方」ボタンはこの語を送ってくる。記事検索にかけても意味がない
-        const messages = isHelpRequest(text) ? helpMessages() : buildReply(await pickArticles(text));
+        // あいさつ・お礼は記事検索にかけない。痛み・ケガの相談は医療機関の一文を付け、比較（PR）記事を返さない（2026-11-11）
+        const pain = isPainConsultation(text);
+        const messages = isHelpRequest(text) ? helpMessages()
+          : isSmallTalk(text) ? smallTalkMessages()
+          : buildReply(await pickArticles(text, { excludeComparison: pain }), { pain });
         await reply(event.replyToken, messages, accessToken);
         handled++;
       }
