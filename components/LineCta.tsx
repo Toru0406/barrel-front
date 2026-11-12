@@ -55,6 +55,9 @@ export default async function LineCta() {
             「肘が痛いと言っている」「成長期の筋トレは大丈夫？」——
             気になることを送ると、論文にあたって書いた記事をお返しします。新着もときどき届きます。
             <span className="hidden md:inline">PCの方はQRコードをスマホのLINEで読み取ってください。</span>
+            <span className="block mt-s-2" style={{ fontSize: "var(--t-xs)" }}>
+              送っていただいた内容は、誰からかが分からない形で記録し、記事づくりの参考にします（90日で削除）。
+            </span>
           </p>
           {/* スマホでは同じタブで遷移させる（別タブだと iOS でアプリ連携が切れることがある） */}
           <a href={lineUrl} rel="noopener" className="btn-cta md:hidden" data-line-pos="footer">
