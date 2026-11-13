@@ -49,8 +49,8 @@ export async function POST(request: Request) {
         const kind: LineQueryKind = isHelpRequest(text) ? "help" : isSmallTalk(text) ? "smalltalk" : matchHub(text) ? "hub" : "search";
         const posts = kind === "search" || kind === "hub" ? await pickArticles(text, { excludeComparison: pain }) : [];
         const messages = kind === "help" ? helpMessages()
-          : kind === "smalltalk" ? smallTalkMessages()
-          : buildReply(posts, { pain });
+          : kind === "smalltalk" ? smallTalkMessages(text)
+          : buildReply(posts, { text, pain });
         await reply(event.replyToken, messages, accessToken);
         // 何を聞かれ、記事を返せたかを残す（ユーザーIDは保存しない。返信の後に行い、失敗しても返信には影響しない）
         await recordLineQuery({ kind, text, pain, slugs: posts.map((p) => p.slug) });
