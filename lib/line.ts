@@ -281,7 +281,11 @@ export function helpMessages(): Message[] {
  */
 /** クイックリプライは最後のメッセージに付いているときだけ表示される（LINEの仕様）ので、最後に付け直す */
 function quickReplyOnLast(messages: Message[]): Message[] {
-  const stripped = messages.map(({ quickReply: _q, ...m }) => m as Message);
+  const stripped = messages.map((m) => {
+    const copy = { ...m };
+    delete copy.quickReply;
+    return copy;
+  });
   stripped[stripped.length - 1] = { ...stripped[stripped.length - 1], quickReply: hubQuickReply() };
   return stripped;
 }
