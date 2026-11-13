@@ -81,25 +81,50 @@ export function isSmallTalk(text: string): boolean {
   return /^(ありがと|有難|有り難|サンキュー|thanks|thank you|了解|わかりました|分かりました|こんにちは|こんばんは|おはよう|はじめまして|初めまして|よろしく)/i.test(text.trim());
 }
 
-export function smallTalkMessages(): Message[] {
+/**
+ * あいさつ・お礼への返事。種類ごとに返す（2026-11-13: 一律の定型文が機械的だという指摘を受けて分けた）
+ */
+export function smallTalkMessages(text = ""): Message[] {
+  const t = text.trim();
+  if (/^(ありがと|有難|有り難|サンキュー|thanks|thank you)/i.test(t)) {
+    return [textMessage("こちらこそ、ありがとうございます。\nまた気になることがあれば、いつでも送ってください。", true)];
+  }
+  if (/^(了解|わかりました|分かりました)/.test(t)) {
+    return [textMessage("ありがとうございます。続けて聞きたいことがあれば、そのまま送ってください。")];
+  }
+  const hello = /^おはよう/.test(t) ? "おはようございます" : /^こんばんは/.test(t) ? "こんばんは" : "こんにちは";
   return [textMessage(
-    "メッセージありがとうございます。\n" +
-    "気になることがあれば、状況をそのまま送ってください。近いテーマの記事をお返しします。",
+    `${hello}、BARRELです。\n` +
+    "練習のことや成長期の身体のことで気になることがあれば、状況をそのまま送ってください。近いテーマの記事をお返しします。",
     true
   )];
 }
 
 /**
- * 痛み・ケガの相談か（2026-11-11）。該当すれば、返信の先頭に医療機関を勧める一文を付け、
- * 比較（PR）記事を候補から外す。健康の相談に商品の記事を返すと、相談の答えが「買うこと」に見えてしまうため
+ * 痛み・ケガの相談か（2026-11-11）。該当すれば比較（PR）記事を候補から外す。
+ * 健康の相談に商品の記事を返すと、相談の答えが「買うこと」に見えてしまうため。
+ * ★2026-11-13: 以前はこの判定で返信の先頭に医療機関を勧める文を必ず付けていたが、「膝が痛い」のような相談への
+ *   返事として場違いで機械的だという指摘を受けた。受診を勧める一言は、受診を考えたほうがよい言葉（hasRedFlag）があるときだけ、
+ *   記事の後に添える
  */
 export function isPainConsultation(text: string): boolean {
   return /痛|腫れ|はれ|しびれ|痺れ|ケガ|怪我|けが|骨折|捻挫|ねんざ|肉離れ|違和感|熱中症|オスグッド|野球肘|シンスプリント/.test(text);
 }
 
-const PAIN_CAUTION =
-  "痛みが続く、腫れがある、動かすと悪化するといったときは、記事より先に医療機関（整形外科など）で診てもらってください。\n" +
-  "記事は一般的な知見をまとめたもので、診断の代わりにはなりません。";
+/** 受診を考えたほうがよい言葉（腫れ・しびれ・強い痛み・動かせない など）を含むか（2026-11-13） */
+export function hasRedFlag(text: string): boolean {
+  return /腫れ|はれて|しびれ|痺れ|激痛|強い痛み|すごく痛|かなり痛|動かせ|歩けな|曲がらな|伸ばせな|変形|熱を持|熱っぽ|ずっと痛|続いて|悪化|骨折|ひどく/.test(text);
+}
+
+const RED_FLAG_NOTE = "腫れやしびれがある、痛みが強くなっているといったときは、記事を読む前に医療機関で診てもらうほうが安心です。";
+
+/** 相談が何についてかを、返信の書き出しに使う短い言葉にする（例: 「膝の痛み」「補食」）。拾えなければ空 */
+export function topicPhrase(text: string): string {
+  const key = keyTerms(text)[0];
+  if (!key) return "";
+  const bodyPart = /^(肘|膝|肩|腰|首|足首|手首|股関節|かかと|背中|太もも|ふくらはぎ)$/.test(key);
+  return bodyPart && /痛/.test(text) ? `${key}の痛み` : key;
+}
 
 /** 比較（PR）記事か。トップページと同じく「道具・サプリの選び方」ハブのカテゴリで見る */
 function isComparisonPost(post: WPPost): boolean {
@@ -171,7 +196,7 @@ const truncate = (s: string, n: number): string => (s.length > n ? `${s.slice(0,
 export function articleCarousel(posts: WPPost[]): Message {
   return {
     type: "flex",
-    altText: truncate(`該当しそうな記事を${posts.length}本お送りしました`, 100),
+    altText: truncate(`近いテーマの記事を${posts.length}本お送りしました`, 100),
     contents: {
       type: "carousel",
       contents: posts.map((p) => {
@@ -249,21 +274,43 @@ export function helpMessages(): Message[] {
   ];
 }
 
-/** 相談文への応答を組み立てる（通信しない。テストしやすいよう純粋関数にしてある）。pain なら先頭に医療機関の一文 */
-export function buildReply(posts: WPPost[], opts: { pain?: boolean } = {}): Message[] {
-  const caution = opts.pain ? [textMessage(PAIN_CAUTION)] : [];
+/**
+ * 相談文への応答を組み立てる（通信しない。テストしやすいよう純粋関数にしてある）。
+ * 2026-11-13: 一律の定型文をやめ、相談の言葉（topicPhrase）を使って何についての返事かが分かるようにした。
+ * 受診を勧める一言は、受診を考えたほうがよい言葉があるときだけ、記事の後に添える
+ */
+/** クイックリプライは最後のメッセージに付いているときだけ表示される（LINEの仕様）ので、最後に付け直す */
+function quickReplyOnLast(messages: Message[]): Message[] {
+  const stripped = messages.map((m) => {
+    const copy = { ...m };
+    delete copy.quickReply;
+    return copy;
+  });
+  stripped[stripped.length - 1] = { ...stripped[stripped.length - 1], quickReply: hubQuickReply() };
+  return stripped;
+}
+
+export function buildReply(posts: WPPost[], opts: { text?: string; pain?: boolean } = {}): Message[] {
+  const text = opts.text ?? "";
+  const topic = topicPhrase(text);
+  const note = opts.pain && hasRedFlag(text) ? [textMessage(RED_FLAG_NOTE)] : [];
   if (posts.length === 0) {
-    return [...caution, textMessage(
-      "近いテーマの記事を見つけられませんでした。\n" +
-      "部位・年代・場面など、もう少し具体的な言葉で送っていただくか、下のテーマから選んでください。",
-      true
-    )];
+    // 中心語が拾えない短い相談（「水泳のフォーム」など）は、相談文をそのまま使う
+    const short = text.replace(/[。、！!？?\s]+$/g, "").trim();
+    const label = topic || (short.length > 0 && short.length <= 20 && !/\n/.test(short) ? short : "");
+    const about = label ? `「${label}」について` : "そのご相談に近いテーマで";
+    return quickReplyOnLast([
+      textMessage(
+        `${about}書いた記事は、まだありませんでした。\n` +
+        "いただいた内容は、これからの記事づくりの参考にします。テーマから探す場合は、下のボタンからどうぞ。"
+      ),
+      ...note,
+    ]);
   }
-  return [
-    ...caution,
-    textMessage("近いテーマの記事です。"),
-    { ...articleCarousel(posts), quickReply: hubQuickReply() },
-  ];
+  const intro = topic
+    ? `「${topic}」に近い記事を${posts.length}本選びました。気になるものから読んでみてください。`
+    : `ご相談に近い記事を${posts.length}本選びました。気になるものから読んでみてください。`;
+  return quickReplyOnLast([textMessage(intro), articleCarousel(posts), ...note]);
 }
 
 /** 応答メッセージを送る。replyToken は1回しか使えない */
