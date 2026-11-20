@@ -13,6 +13,7 @@ import SecondaryStory from "@/components/SecondaryStory";
 import ArticleListItem from "@/components/ArticleListItem";
 import SectionHeading from "@/components/SectionHeading";
 import LineCta from "@/components/LineCta";
+import WinterFeature from "@/components/WinterFeature";
 import Eyebrow from "@/components/Eyebrow";
 import PrBadge from "@/components/PrBadge";
 
@@ -121,6 +122,11 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 特集枠（2026-11-19）。大会期間は神宮大会版、11/25 以降は冬の体づくり特集。中身と切り替えは components/WinterFeature.tsx。
+          リードの直後に置く: スマホでリードの次に目に入り、研究メディアの顔（リード）は先頭のまま、
+          「テーマから探す」（S1でハブを最新の上へ上げた構成）も最新の上に残る */}
+      <WinterFeature />
 
       {/* =====================================================
           Section 2: テーマ別（全幅緑帯）。2026-11-11 に最新の上へ移した（ハブへの導線をページ下部から上げる）
